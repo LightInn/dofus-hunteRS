@@ -16,7 +16,7 @@ function App() {
     }
 
     function handleScreenshot() {
-        invoke('take_screenshot').then((response) => {
+        invoke('capture_game_region').then((response) => {
             console.log(response)
         })
     }
