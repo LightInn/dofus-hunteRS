@@ -1,0 +1,13 @@
+use std::sync::{Arc, Mutex};
+
+#[derive(Default)]
+pub struct AppState {
+    pub running: bool,
+    pub config: BotConfig,
+}
+
+#[derive(Default)]
+pub struct BotConfig {
+    pub window_title: String,
+    pub api_url: String,
+}
