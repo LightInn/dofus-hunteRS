@@ -12,6 +12,7 @@
   "app": {
     "windows": [
       {
+        "alwaysOnTop": true,
         "title": "dofus-hunters",
         "width": 800,
         "height": 600
