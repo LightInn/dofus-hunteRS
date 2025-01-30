@@ -3,7 +3,7 @@ mod screenshot;
 mod state;
 mod ocr;
 mod arrows;
-
+mod api;
 
 use tauri::State;
 
@@ -76,7 +76,7 @@ pub fn capture_analyse(state: State<'_, AppState> ) -> Result<(), String> {
 
     let text = ocr::ocr(&image).map_err(|e| e.to_string())?;
 
-    println!("Text: {:?}", text);
+    // println!("Text: {:?}", text);
 
     Ok(())
 }
@@ -93,7 +93,7 @@ pub fn detect_arrow_direction(state: State<'_, AppState>) -> Result<(), String> 
 
     let image = capture_region(region).map_err(|e| e.to_string())?;
 
-    let direction = arrows::detect_arrow_direction(&image, true);
+    let direction = arrows::detect_arrow_direction(&image, false);
 
     println!("Direction: {:?}", direction);
     Ok(())
