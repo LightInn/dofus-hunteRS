@@ -194,7 +194,7 @@ pub fn detect_arrow_direction(image: &DynamicImage, debug: bool) -> ArrowDirecti
         let score = calculate_arrow_score(&hu);
         println!("Score: {}", score);
 
-        if score > 3 && (score > best_score || (score == best_score && c_y > best_y)) {
+        if score > 3 && (score >= best_score && c_y > best_y) {
             best_score = score;
             best_y = c_y;
             best_contour = Some(contour.clone());
@@ -210,25 +210,25 @@ pub fn detect_arrow_direction(image: &DynamicImage, debug: bool) -> ArrowDirecti
 fn calculate_arrow_score(hu_moments: &[f64; 7]) -> i32 {
     let mut score = 0;
 
-    if (0.19706160599022915..0.20527021268894888).contains(&hu_moments[0]) {
+    if (0.18..0.20).contains(&hu_moments[0]) {
         score += 1;
     }
-    if (0.008239561673015998..0.008372439975017982).contains(&hu_moments[1]) {
+    if (0.007..0.009).contains(&hu_moments[1]) {
         score += 1;
     }
-    if (0.0004065771702895909..0.000653895340948814).contains(&hu_moments[2]) {
+    if (0.0003..0.0007).contains(&hu_moments[2]) {
         score += 1;
     }
-    if (4.0633316521550305e-05..6.676444433928046e-05).contains(&hu_moments[3]) {
+    if (4.0e-05..6.7e-05).contains(&hu_moments[3]) {
         score += 1;
     }
-    if (5.222697850708119e-09..1.3949928439620412e-08).contains(&hu_moments[4]) {
+    if (5.0e-09..1.5e-08).contains(&hu_moments[4]) {
         score += 1;
     }
-    if (3.6883686806138753e-06..6.109015965812248e-06).contains(&hu_moments[5]) {
+    if (3.6e-06..6.2e-06).contains(&hu_moments[5]) {
         score += 1;
     }
-    if (-9.445890312939806e-22..1.973820047986927e-21).contains(&hu_moments[6]) {
+    if (-9.4e-22..2.0e-21).contains(&hu_moments[6]) {
         score += 1;
     }
 
