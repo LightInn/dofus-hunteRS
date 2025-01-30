@@ -4,7 +4,6 @@ use rten::Model;
 use std::error::Error;
 use std::path::PathBuf;
 use std::sync::LazyLock;
-use std::time::Instant;
 
 static OCR_ENGINE: LazyLock<Result<OcrEngine, Box<dyn Error + Send + Sync>>> =
     LazyLock::new(|| {

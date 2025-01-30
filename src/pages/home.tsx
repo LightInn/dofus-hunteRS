@@ -33,6 +33,13 @@ function Home() {
         })
     }
 
+
+    function handleArrowDirection() {
+        invoke('detect_arrow_direction').then((response) => {
+            console.log(response)
+        })
+    }
+
     return (
         <div>
             <h1>Dofus Bot</h1>
@@ -43,6 +50,7 @@ function Home() {
                 <button onClick={handleScreenshot}>Screenshot</button>
                 <button onClick={handleCapture}>Capture</button>
                 <button onClick={handleCaptureAnalyse}>Capture + Analyse</button>
+                <button onClick={handleArrowDirection}>Arrow</button>
             </div>
         </div>
     )

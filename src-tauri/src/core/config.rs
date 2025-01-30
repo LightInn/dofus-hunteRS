@@ -1,9 +1,6 @@
 use config::{Config, Environment, File, FileFormat};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::path::PathBuf;
-
-use std::sync::{Arc, Mutex};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BotConfig {
@@ -58,7 +55,7 @@ pub struct ShortcutConfig {
 
 impl BotConfig {
     pub fn new() -> Result<Self, config::ConfigError> {
-        let mut cfg = Config::builder()
+        let cfg = Config::builder()
             .add_source(File::with_name("config").format(FileFormat::Json))
             .add_source(Environment::with_prefix("DOFUS").separator("__"))
             .build()?;

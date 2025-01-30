@@ -2,15 +2,15 @@ pub mod config;
 mod screenshot;
 mod state;
 mod ocr;
-// mod actions;
+mod arrows;
 
-use std::sync::{Arc, Mutex};
+
 use tauri::State;
 
 pub use config::BotConfig;
 pub use screenshot::{capture_region, CaptureError, ScreenRegion};
 pub use state::AppState;
-// pub use actions::{Action, ActionHandler};
+
 
 #[tauri::command]
 pub fn start_bot(state: State<'_, AppState>) -> Result<(), String> {
@@ -80,6 +80,27 @@ pub fn capture_analyse(state: State<'_, AppState> ) -> Result<(), String> {
 
     Ok(())
 }
+
+
+
+#[tauri::command]
+pub fn detect_arrow_direction(state: State<'_, AppState>) -> Result<(), String> {
+
+
+    let state = state.inner.lock().unwrap();
+
+    let region: ScreenRegion = state.config.regions.hunt_panel.into();
+
+    let image = capture_region(region).map_err(|e| e.to_string())?;
+
+    let direction = arrows::detect_arrow_direction(&image, true);
+
+    println!("Direction: {:?}", direction);
+    Ok(())
+}
+
+
+
 
 // #[tauri::command]
 // fn execute_action(action: Action, state: State<Arc<Mutex<AppState>>>) -> Result<(), String> {
