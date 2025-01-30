@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import {invoke} from "@tauri-apps/api/core";
 
 interface BotConfig {
@@ -31,6 +31,8 @@ export default function SettingsPanel() {
     };
 
     const updateConfig = async (section: keyof BotConfig, field: string, value: any) => {
+        if (!config) return
+
         const updated = {...config, [section]: {...config[section], [field]: value}};
         await invoke('update_config', {newConfig: updated});
         setConfig(updated);
