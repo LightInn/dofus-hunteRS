@@ -1,4 +1,8 @@
 use std::sync::{Arc, Mutex};
+use config::Config;
+
+use super::config::BotConfig;
+
 
 #[derive(Default)]
 pub struct AppState {
@@ -9,10 +13,4 @@ pub struct AppState {
 pub struct InnerAppState {
     pub running: bool,
     pub config: BotConfig,
-}
-
-#[derive(Default)]
-pub struct BotConfig {
-    pub window_title: String,
-    pub api_url: String,
 }
