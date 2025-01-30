@@ -62,6 +62,7 @@ pub fn find_next_location(
             ("y", y.to_string()),
             ("direction", direction.to_string()),
             ("hint", hint.to_string()),
+            ("language", "en".to_string()),
         ])
         .send()?;
 

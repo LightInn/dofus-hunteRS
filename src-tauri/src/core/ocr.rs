@@ -59,7 +59,7 @@ fn ocr(image: &DynamicImage) -> Result<Vec<String>, Box<dyn Error>> {
         .collect();
 
     parse_hunt_panel_text(extracted_text.clone());
-    println!("{:?}", extracted_text);
+    // println!("{:?}", extracted_text);
     Ok(extracted_text)
 }
 
@@ -111,7 +111,7 @@ fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
         }
 
         // Détection de l'indice avant CONFIRM/attempts
-        if line == "CONFIRM" {
+        if line.contains("CONFIRM") {
             hint_validated = hint_candidate;
         }
 
@@ -138,7 +138,6 @@ fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
             .to_string();
     }
 
-    println!("{:?}", infos);
 
     infos
 }
@@ -149,5 +148,7 @@ pub fn ocr_hunt_panel(image: &DynamicImage) -> Result<HuntPanelInfos, Box<dyn Er
     let extracted_text = ocr(image)?;
 
     let infos = parse_hunt_panel_text(extracted_text.clone());
+
+    println!("{:?}", infos);
     Ok(infos)
 }

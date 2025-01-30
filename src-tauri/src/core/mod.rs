@@ -120,6 +120,8 @@ pub fn send_api_request(state: State<'_, AppState>) -> Result<(), String> {
 
     let hint = state.bot_data.current_hint.clone();
 
+    println!("Sending request with x: {}, y: {}, direction: {}, hint: {}", x, y, direction, hint);
+
     let response =
         api::find_next_location(config, x, y, direction, &hint).map_err(|e| e.to_string())?;
 
