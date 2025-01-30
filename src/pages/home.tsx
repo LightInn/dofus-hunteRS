@@ -40,6 +40,12 @@ function Home() {
         })
     }
 
+    function handleSendApiRequest() {
+        invoke('send_api_request').then((response) => {
+            console.log(response)
+        })
+    }
+
     return (
         <div>
             <h1>Dofus Bot</h1>
@@ -51,6 +57,7 @@ function Home() {
                 <button onClick={handleCapture}>Capture</button>
                 <button onClick={handleCaptureAnalyse}>Capture + Analyse</button>
                 <button onClick={handleArrowDirection}>Arrow</button>
+                <button onClick={handleSendApiRequest}>send</button>
             </div>
         </div>
     )

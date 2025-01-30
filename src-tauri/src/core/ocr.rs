@@ -21,6 +21,16 @@ static OCR_ENGINE: LazyLock<Result<OcrEngine, Box<dyn Error + Send + Sync>>> =
         })?)
     });
 
+#[derive(Debug)]
+pub struct HuntPanelInfos {
+    pub step_current: u8,
+    pub step_total: u8,
+    pub start_x: i8,
+    pub start_y: i8,
+    pub current_hint: String,
+    pub attempts_remaining: u8,
+}
+
 /// Given a file path relative to the crate root, return the absolute path.
 fn file_path(path: &str) -> PathBuf {
     let mut abs_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -29,7 +39,7 @@ fn file_path(path: &str) -> PathBuf {
 }
 
 /// Performs OCR on a given DynamicImage and returns extracted text.
-pub fn ocr(image: &DynamicImage) -> Result<Vec<String>, Box<dyn Error>> {
+fn ocr(image: &DynamicImage) -> Result<Vec<String>, Box<dyn Error>> {
     let engine = OCR_ENGINE.as_ref().map_err(|e| e.to_string())?;
 
     let img = image.to_rgb8();
@@ -51,16 +61,6 @@ pub fn ocr(image: &DynamicImage) -> Result<Vec<String>, Box<dyn Error>> {
     parse_hunt_panel_text(extracted_text.clone());
     println!("{:?}", extracted_text);
     Ok(extracted_text)
-}
-
-#[derive(Debug)]
-struct HuntPanelInfos {
-    step_current: u8,
-    step_total: u8,
-    start_x: i8,
-    start_y: i8,
-    current_hint: String,
-    attempts_remaining: u8,
 }
 
 fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
@@ -144,3 +144,10 @@ fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
 }
 
 // Text: [" TREASURE HUNT", "STEP: 1/3", "O Start [-6,-53]", "Cania Plains (Stontusk Desert)", "IN PROGRESS O", "1 Striped Mushroom", "CONFIRM", "4 attempts remaining", "WAMA", "NWS"]
+
+pub fn ocr_hunt_panel(image: &DynamicImage) -> Result<HuntPanelInfos, Box<dyn Error>> {
+    let extracted_text = ocr(image)?;
+
+    let infos = parse_hunt_panel_text(extracted_text.clone());
+    Ok(infos)
+}

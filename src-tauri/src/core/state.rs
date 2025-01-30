@@ -3,8 +3,8 @@ use std::sync::{Arc, Mutex};
 
 use super::config::BotConfig;
 
-#[derive(Default)]
-enum ArrowDirection {
+#[derive(Default, Debug, Clone, Copy, serde::Serialize)]
+pub enum ArrowDirection {
     Up,
     Down,
     Left,
@@ -21,26 +21,27 @@ pub struct AppState {
 #[derive(Default)]
 pub struct InnerAppState {
     pub running: bool,
+    pub bot_data: BotData,
     pub config: BotConfig,
 }
 
 #[derive(Default)]
 pub struct BotData {
-    steps: Steps,
-    current_hint: String,
-    start_coord: Coord,
-    current_coord: Coord,
-    current_arrow: ArrowDirection,
+    pub steps: Steps,
+    pub current_hint: String,
+    pub start_coord: Coord,
+    pub current_coord: Coord,
+    pub current_arrow: ArrowDirection,
 }
 
 #[derive(Default)]
-struct Steps {
-    current: u8,
-    total: u8,
+pub struct Steps {
+    pub current: u8,
+    pub total: u8,
 }
 
 #[derive(Default)]
-struct Coord {
-    x: i8,
-    y: i8,
+pub struct Coord {
+    pub x: i8,
+    pub y: i8,
 }

@@ -65,13 +65,16 @@ pub fn find_next_location(
         ])
         .send()?;
 
-    match response.status() {
-        StatusCode::UNAUTHORIZED => {
-            return Err(ApiError::AuthError("Invalid API token".to_string()))
-        }
-        _ => response.error_for_status_ref()?,
+    // Gestion spécifique du statut 401
+    if response.status() == StatusCode::UNAUTHORIZED {
+        return Err(ApiError::AuthError("Invalid API token".to_string()));
     }
 
+
+    // Vérification des autres erreurs HTTP
+    let response = response.error_for_status()?;
+
+    // Désérialisation de la réponse
     let locations: Vec<LocationData> = response.json()?;
     println!("Locations: {:?}", locations);
     Ok(locations.into_iter().next())

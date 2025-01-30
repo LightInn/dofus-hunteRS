@@ -2,14 +2,7 @@ use image::{DynamicImage, GrayImage};
 use ndarray::Array2;
 use opencv::{core, core::Vector, highgui, imgproc, prelude::*};
 
-#[derive(Debug, Clone, Copy, serde::Serialize)]
-pub enum ArrowDirection {
-    Up,
-    Down,
-    Left,
-    Right,
-    Unknown,
-}
+use super::state::ArrowDirection;
 
 pub fn detect_arrow_direction(image: &DynamicImage, debug: bool) -> ArrowDirection {
     // Convertir l'image en niveaux de gris
