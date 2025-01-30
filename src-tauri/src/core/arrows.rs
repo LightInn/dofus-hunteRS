@@ -137,10 +137,10 @@ pub fn detect_arrow_direction(image: &DynamicImage, debug: bool) -> ArrowDirecti
         if area < 70.0 || area > 400.0 {
             continue;
         }
-        println!("Area: {}", area);
 
         // debug visualization
         if debug {
+            println!("Area: {}", area);
             // Créer une image vide pour dessiner les contours
             let mut drawing = core::Mat::zeros(rows, cols, core::CV_8UC3)
                 .unwrap()
@@ -150,7 +150,6 @@ pub fn detect_arrow_direction(image: &DynamicImage, debug: bool) -> ArrowDirecti
             // List of contours from the current contour
             let mut contours_vec = Vector::<Vector<core::Point>>::new();
             contours_vec.push(contour.clone());
-
 
             let color = core::Scalar::new(0.0, 255.0, 0.0, 0.0); // Couleur verte
             imgproc::draw_contours(
@@ -173,7 +172,6 @@ pub fn detect_arrow_direction(image: &DynamicImage, debug: bool) -> ArrowDirecti
         }
 
         let moments = imgproc::moments(&contour, false).unwrap();
-        println!("Moments: {:?}", moments);
 
         if moments.m00 == 0.0 {
             continue;
@@ -182,10 +180,14 @@ pub fn detect_arrow_direction(image: &DynamicImage, debug: bool) -> ArrowDirecti
         let c_y = (moments.m01 / moments.m00) as i32;
         let mut hu = [0.0; 7];
         imgproc::hu_moments(moments, &mut hu).unwrap();
-        println!("Hu Moments: {:?}", hu);
 
         let score = calculate_arrow_score(&hu);
-        println!("Score: {}", score);
+
+        if debug {
+            println!("Moments: {:?}", moments);
+            println!("Hu Moments: {:?}", hu);
+            println!("Score: {}", score);
+        }
 
         if score > 3 && (score >= best_score && c_y > best_y) {
             best_score = score;
@@ -224,7 +226,6 @@ fn calculate_arrow_score(hu_moments: &[f64; 7]) -> i32 {
     if (-9.4e-22..2.0e-21).contains(&hu_moments[6]) {
         score += 1;
     }
-
 
     score
 }
