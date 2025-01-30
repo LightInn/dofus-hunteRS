@@ -1,6 +1,7 @@
 pub mod config;
 mod screenshot;
 mod state;
+mod ocr;
 // mod actions;
 
 use std::sync::{Arc, Mutex};
@@ -73,9 +74,10 @@ pub fn capture_analyse(state: State<'_, AppState> ) -> Result<(), String> {
 
     let image = capture_region(region).map_err(|e| e.to_string())?;
 
+    let text = ocr::ocr(&image).map_err(|e| e.to_string())?;
 
+    println!("Text: {:?}", text);
 
-    image.save("image.png").unwrap();
     Ok(())
 }
 
