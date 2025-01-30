@@ -108,8 +108,8 @@ pub fn send_api_request(state: State<'_, AppState>) -> Result<(), String> {
     let state = state.inner.lock().unwrap();
     let config = state.config.api.clone();
 
-    let x = state.bot_data.current_coord.x as i32;
-    let y = state.bot_data.current_coord.y as i32;
+    let x = state.bot_data.start_coord.x as i32;
+    let y = state.bot_data.start_coord.y as i32;
     let direction = match state.bot_data.current_arrow {
         ArrowDirection::Up => "up",
         ArrowDirection::Down => "down",
