@@ -1,34 +1,41 @@
 // frontend/src/App.tsx
-import { invoke } from "@tauri-apps/api/core";
-import { useState } from 'react'
+import {
+    BrowserRouter as Router,
+    Route,
+    Link, Routes
+} from "react-router-dom";
+import Home from "./pages/home.tsx";
+import SettingsPanel from "./components/SettingsPanel.tsx";
+
 
 function App() {
-    const [status, setStatus] = useState('stopped')
-
-    const handleStart = async () => {
-        await invoke('start_bot')
-        setStatus('running')
-    }
-
-    const handleStop = async () => {
-        await invoke('stop_bot')
-        setStatus('stopped')
-    }
-
-    function handleScreenshot() {
-        invoke('capture_game_region').then((response) => {
-            console.log(response)
-        })
-    }
 
     return (
-        <div>
-            <h1>Dofus Bot</h1>
-            <p>Status: {status}</p>
-            <button onClick={handleStart}>Start</button>
-            <button onClick={handleStop}>Stop</button>
-            <button onClick={handleScreenshot}>Screenshot</button>
-        </div>
+
+        <Router>
+
+            <div>
+                <nav>
+                    <ul>
+                        <li>
+                            <Link to="/">Home</Link>
+                        </li>
+                        <li>
+                            <Link to="/settings">Settings</Link>
+                        </li>
+
+                    </ul>
+                </nav>
+            </div>
+
+
+            <Routes>
+                <Route path="/" element={<Home/>}/>
+                <Route path="/settings" element={<SettingsPanel/>}/>
+            </Routes>
+        </Router>
+
+
     )
 }
 

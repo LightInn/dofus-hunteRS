@@ -1,0 +1,34 @@
+.settings-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.settings-section {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.region-input .coordinate-inputs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+}
+
+.region-input input {
+    width: 100%;
+    padding: 0.3rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 1rem;
+}
+
+h3 {
+    color: #2c3e50;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+}

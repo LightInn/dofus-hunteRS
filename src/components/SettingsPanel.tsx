@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {invoke} from "@tauri-apps/api/core";
 
-interface AppConfig {
+interface BotConfig {
     api: {
         url: string;
         token: string;
@@ -19,20 +19,20 @@ interface AppConfig {
 }
 
 export default function SettingsPanel() {
-    const [config, setConfig] = useState<AppConfig | null>(null);
+    const [config, setConfig] = useState<BotConfig | null>(null);
 
     useEffect(() => {
         loadConfig();
     }, []);
 
     const loadConfig = async () => {
-        const config = await invoke<AppConfig>('get_config');
+        const config = await invoke<BotConfig>('get_config');
         setConfig(config);
     };
 
-    const updateConfig = async (section: keyof AppConfig, field: string, value: any) => {
+    const updateConfig = async (section: keyof BotConfig, field: string, value: any) => {
         const updated = {...config, [section]: {...config[section], [field]: value}};
-        await invoke('update_config', {config: updated});
+        await invoke('update_config', {newConfig: updated});
         setConfig(updated);
     };
 
