@@ -1,82 +1,33 @@
-use reqwest::{
-    blocking::Client,
-    header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE},
-    StatusCode,
-};
-use serde::Deserialize;
-use std::time::Duration;
-use thiserror::Error;
+use tauri::State;
+use crate::composent::api::find_next_location;
+use crate::models::{AppState, ArrowDirection};
 
-use super::config::ApiConfig;
+#[tauri::command]
+pub fn call_send_api_request(state: State<'_, AppState>) -> Result<(), String> {
+    let state = state.inner.lock().unwrap();
+    let config = state.config.api.clone();
 
-#[derive(Debug, Error)]
-pub enum ApiError {
-    #[error("Authentication error: {0}")]
-    AuthError(String),
-    #[error("HTTP error: {0}")]
-    HttpError(#[from] reqwest::Error),
-    #[error("Invalid header: {0}")]
-    InvalidHeader(String),
-    #[error("JSON error: {0}")]
-    JsonError(#[from] serde_json::Error),
-}
+    let x = state.bot_data.coords.start.x as i32;
+    let y = state.bot_data.coords.start.y as i32;
+    let direction = match state.bot_data.current_arrow {
+        ArrowDirection::Up => "up",
+        ArrowDirection::Down => "down",
+        ArrowDirection::Left => "left",
+        ArrowDirection::Right => "right",
+        ArrowDirection::Unknown => "unknown",
+    };
 
-#[derive(Debug, Deserialize)]
-pub struct LocationData {
-    pub pos_x: i32,
-    pub pos_y: i32,
-    pub distance: i32,
-}
+    let hint = state.bot_data.current_hint.clone();
 
-fn get_headers(config: ApiConfig) -> Result<HeaderMap, ApiError> {
-    let mut headers = HeaderMap::new();
-
-    headers.insert(
-        AUTHORIZATION,
-        HeaderValue::from_str(&format!("Bearer {}", config.token))
-            .map_err(|e| ApiError::InvalidHeader(format!("Invalid token: {}", e)))?,
+    println!(
+        "Sending request with x: {}, y: {}, direction: {}, hint: {}",
+        x, y, direction, hint
     );
 
-    headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+    let response =
+        find_next_location(config, x, y, direction, &hint).map_err(|e| e.to_string())?;
 
-    Ok(headers)
-}
+    println!("{:?}", response);
 
-pub fn find_next_location(
-    config: ApiConfig,
-    x: i32,
-    y: i32,
-    direction: &str,
-    hint: &str,
-) -> Result<Option<LocationData>, ApiError> {
-    let url = format!("{}/api/treasure-hunt", config.url);
-    let headers = get_headers(config)?;
-
-    let client = Client::builder().timeout(Duration::from_secs(10)).build()?;
-
-    let response = client
-        .get(&url)
-        .headers(headers)
-        .query(&[
-            ("x", x.to_string()),
-            ("y", y.to_string()),
-            ("direction", direction.to_string()),
-            ("hint", hint.to_string()),
-            ("language", "en".to_string()),
-        ])
-        .send()?;
-
-    // Gestion spécifique du statut 401
-    if response.status() == StatusCode::UNAUTHORIZED {
-        return Err(ApiError::AuthError("Invalid API token".to_string()));
-    }
-
-
-    // Vérification des autres erreurs HTTP
-    let response = response.error_for_status()?;
-
-    // Désérialisation de la réponse
-    let locations: Vec<LocationData> = response.json()?;
-    println!("Locations: {:?}", locations);
-    Ok(locations.into_iter().next())
+    Ok(())
 }

@@ -3,9 +3,7 @@ use xcap::XCapError;
 use image::DynamicImage;
 use std::error::Error;
 use std::fmt;
-
-/// Représente une région de l'écran avec des coordonnées (x, y, width, height)
-pub type ScreenRegion = (i32, i32, u32, u32);
+use crate::models::ScreenRegion;
 
 /// Capture une région spécifique de l'écran
 pub fn capture_region(region: ScreenRegion) -> Result<DynamicImage, CaptureError> {

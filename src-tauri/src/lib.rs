@@ -1,29 +1,30 @@
+mod composent;
 mod core;
+mod models;
 mod ocr;
 
-use core::{
-    capture_analyse, capture_game_region, detect_arrow_direction, get_config, python, save_region,
-    send_api_request, start_bot, stop_bot, take_screenshot, update_config,
-};
+use crate::core::api::call_send_api_request;
+use crate::core::arrows::call_arrow_direction;
+use crate::core::config::{call_get_config, call_save_region, call_update_config};
+use crate::core::ocr::{call_capture_analyse, call_capture_game_region};
+use core::call_python;
+
+use crate::models::AppState;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .manage(core::AppState::default())
+        .manage(AppState::default())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-            greet,
-            start_bot,
-            stop_bot,
-            take_screenshot,
-            capture_game_region,
-            get_config,
-            update_config,
-            capture_analyse,
-            detect_arrow_direction,
-            send_api_request,
-            save_region,
-            python
+            call_capture_game_region,
+            call_get_config,
+            call_update_config,
+            call_capture_analyse,
+            call_arrow_direction,
+            call_send_api_request,
+            call_save_region,
+            call_python
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

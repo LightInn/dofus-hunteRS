@@ -1,4 +1,4 @@
-use enigo::{Enigo, MouseButton, KeyboardControllable};
+use enigo::{Enigo, KeyboardControllable, MouseButton};
 use thiserror::Error;
 
 #[derive(Debug)]
@@ -14,7 +14,9 @@ pub struct ActionHandler {
 
 impl ActionHandler {
     pub fn new() -> Self {
-        Self { enigo: Enigo::new() }
+        Self {
+            enigo: Enigo::new(),
+        }
     }
 
     pub fn execute(&mut self, action: Action) -> Result<(), ActionError> {
@@ -22,10 +24,10 @@ impl ActionHandler {
             Action::MouseClick { x, y } => {
                 self.enigo.mouse_move_to(x, y);
                 self.enigo.mouse_click(MouseButton::Left);
-            },
+            }
             Action::TypeText(text) => {
                 self.enigo.key_sequence(&text);
-            },
+            }
             Action::PressKey(key) => {
                 self.enigo.key_click(key.parse()?);
             }

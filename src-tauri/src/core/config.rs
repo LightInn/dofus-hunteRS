@@ -1,107 +1,64 @@
-use config::{Config, Environment, File, FileFormat};
-use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use tauri::State;
+use crate::composent::config::BotConfig;
+use crate::models::{AppState, RegionCoordinates};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct BotConfig {
-    pub api: ApiConfig,
-    pub window: WindowConfig,
-    pub regions: RegionConfig,
-    pub database: DatabaseConfig,
-    pub logging: LoggingConfig,
-    pub shortcuts: ShortcutConfig,
+
+
+#[tauri::command]
+pub async fn call_get_config(state: State<'_, AppState>) -> Result<BotConfig, String> {
+    let state = state.inner.lock().unwrap();
+    let config = state.config.clone();
+
+    Ok(config)
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ApiConfig {
-    pub url: String,
-    pub token: String,
+#[tauri::command]
+pub async fn call_update_config(
+    new_config: BotConfig,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let mut app_state = state.inner.lock().unwrap();
+    app_state.config = new_config;
+    app_state.config.save().map_err(|e| e.to_string())?;
+    Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct WindowConfig {
-    pub title: String,
-    pub focus_chat_binding: String,
-}
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct RegionConfig {
-    pub coordinates: (i32, i32, u32, u32),
-    pub hunt_panel: (i32, i32, u32, u32),
-    pub chat: (i32, i32, u32, u32),
-}
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct DatabaseConfig {
-    pub host: String,
-    pub port: u16,
-    pub name: String,
-    pub user: String,
-    pub password: String,
-}
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct LoggingConfig {
-    pub file: PathBuf,
-    pub level: String,
-}
+#[tauri::command]
+pub async fn call_save_region(
+    region_data: RegionCoordinates,
+    state: State<'_, AppState>, // Supposons que `AppState` contient votre configuration
+) -> Result<(), String> {
+    let region = region_data.region;
+    let coordinates = region_data.coordinates;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ShortcutConfig {
-    pub auto_detect: String,
-    pub use_proxy: bool,
-    pub keyboard_shortcuts: bool,
-}
+    let mut state = state.inner.lock().unwrap();
 
-impl BotConfig {
-    pub fn new() -> Result<Self, config::ConfigError> {
-        let cfg = Config::builder()
-            .add_source(File::with_name("config").format(FileFormat::Json))
-            .add_source(Environment::with_prefix("DOFUS").separator("__"))
-            .build()?;
+    // Convertir [i32; 4] en (i32, i32, u32, u32)
+    let (x1, y1, x2, y2) = (
+        coordinates[0],        // x1
+        coordinates[1],        // y1
+        coordinates[2] as u32, // x2 (convertir en u32)
+        coordinates[3] as u32, // y2 (convertir en u32)
+    );
 
-        cfg.try_deserialize()
+    // Assigner les coordonnées à la région correspondante
+    match region.as_str() {
+        "coordinates" => state.config.regions.coordinates = (x1, y1, x2, y2),
+        "hunt_panel" => state.config.regions.hunt_panel = (x1, y1, x2, y2),
+        "chat" => state.config.regions.chat = (x1, y1, x2, y2),
+        _ => return Err(format!("Région inconnue : {}", region)),
     }
 
-    pub fn save(&self) -> Result<(), std::io::Error> {
-        let contents = serde_json::to_string_pretty(self)?;
-        std::fs::write("config.json", contents)?;
-        Ok(())
-    }
-}
+    state.config.save().map_err(|e| e.to_string())?;
 
-impl Default for BotConfig {
-    fn default() -> Self {
-        Self::new().unwrap_or_else(|_| BotConfig {
-            api: ApiConfig {
-                url: "http://localhost".to_string(),
-                token: "default_token".to_string(),
-            },
-            window: WindowConfig {
-                title: "Default Title".to_string(),
-                focus_chat_binding: "Ctrl+Enter".to_string(),
-            },
-            regions: RegionConfig {
-                coordinates: (0, 0, 100, 100),
-                hunt_panel: (0, 0, 50, 50),
-                chat: (0, 0, 50, 50),
-            },
-            database: DatabaseConfig {
-                host: "localhost".to_string(),
-                port: 5432,
-                name: "default_db".to_string(),
-                user: "user".to_string(),
-                password: "password".to_string(),
-            },
-            logging: LoggingConfig {
-                file: PathBuf::from("log.txt"),
-                level: "info".to_string(),
-            },
-            shortcuts: ShortcutConfig {
-                auto_detect: "F5".to_string(),
-                use_proxy: false,
-                keyboard_shortcuts: true,
-            },
-        })
-    }
+    println!(
+        "Sauvegarde de la région '{}' avec les coordonnées : {:?}",
+        region,
+        (x1, y1, x2, y2)
+    );
+
+    Ok(())
 }
