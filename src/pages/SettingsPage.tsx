@@ -1,6 +1,5 @@
 import {useState, useEffect} from 'react';
 import {invoke} from "@tauri-apps/api/core";
-import RegionSelector from '../components/RegionSelector';
 import {WebviewWindow} from "@tauri-apps/api/webviewWindow";
 import {Link} from "react-router-dom";
 
@@ -23,8 +22,6 @@ interface BotConfig {
 
 export default function SettingsPage() {
     const [config, setConfig] = useState<BotConfig | null>(null);
-    const [selectingRegion, setSelectingRegion] = useState<string | null>(null);
-
     useEffect(() => {
         loadConfig();
     }, []);
@@ -66,22 +63,6 @@ export default function SettingsPage() {
             console.error('Failed to create overlay window:', e);
         });
     }
-
-    const handleRegionSelect = (coords: [number, number, number, number]) => {
-        if (!config || !selectingRegion) return;
-
-        const updated = {
-            ...config,
-            regions: {
-                ...config.regions,
-                [selectingRegion]: coords
-            }
-        };
-
-        setConfig(updated);
-        invoke('update_config', {newConfig: updated});
-    };
-
 
     if (!config) return <div>Loading...</div>;
 
@@ -126,10 +107,6 @@ export default function SettingsPage() {
             </div>
 
             <div className="settings-container">
-                {selectingRegion && (
-                    <RegionSelector/>
-                )}
-
                 <div className="settings-section">
                     <h3>Screen Regions</h3>
                     {Object.entries(config?.regions || {}).map(([name]) => (

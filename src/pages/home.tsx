@@ -2,6 +2,7 @@
 import {invoke} from "@tauri-apps/api/core";
 import {useState} from 'react'
 import {Link} from "react-router-dom";
+import Monitor from "../components/Monitor.tsx";
 
 function Home() {
     const [status, setStatus] = useState('stopped')
@@ -47,6 +48,14 @@ function Home() {
         })
     }
 
+
+    function handlePython() {
+        invoke('python').then((response) => {
+            console.log(response)
+        })
+    }
+
+
     return (
         <div>
 
@@ -67,6 +76,10 @@ function Home() {
 
 
             <h1>Dofus Bot</h1>
+
+
+            <Monitor/>
+
             <p>Status: {status}</p>
             <div style={{display: 'flex', flexDirection: "column", gap: '1rem'}}>
                 <button onClick={handleStart}>Start</button>
@@ -76,6 +89,7 @@ function Home() {
                 <button onClick={handleCaptureAnalyse}>Capture + Analyse</button>
                 <button onClick={handleArrowDirection}>Arrow</button>
                 <button onClick={handleSendApiRequest}>send</button>
+                <button onClick={handlePython}>Python</button>
             </div>
         </div>
     )
