@@ -5,7 +5,8 @@ import {
     Link, Routes
 } from "react-router-dom";
 import Home from "./pages/home.tsx";
-import SettingsPanel from "./components/SettingsPanel.tsx";
+import SettingsPage from "./pages/SettingsPage.tsx";
+import RegionSelector from "./components/RegionSelector.tsx";
 
 
 function App() {
@@ -14,24 +15,12 @@ function App() {
 
         <Router>
 
-            <div>
-                <nav>
-                    <ul>
-                        <li>
-                            <Link to="/">Home</Link>
-                        </li>
-                        <li>
-                            <Link to="/settings">Settings</Link>
-                        </li>
-
-                    </ul>
-                </nav>
-            </div>
 
 
             <Routes>
                 <Route path="/" element={<Home/>}/>
-                <Route path="/settings" element={<SettingsPanel/>}/>
+                <Route path="/settings" element={<SettingsPage/>}/>
+                <Route path="/region/:region" element={<RegionSelector/>}/>
             </Routes>
         </Router>
 

@@ -1,6 +1,7 @@
 // frontend/src/App.tsx
 import {invoke} from "@tauri-apps/api/core";
 import {useState} from 'react'
+import {Link} from "react-router-dom";
 
 function Home() {
     const [status, setStatus] = useState('stopped')
@@ -48,6 +49,23 @@ function Home() {
 
     return (
         <div>
+
+
+            <div>
+                <nav>
+                    <ul>
+                        <li>
+                            <Link to="/">Home</Link>
+                        </li>
+                        <li>
+                            <Link to="/settings">Settings</Link>
+                        </li>
+
+                    </ul>
+                </nav>
+            </div>
+
+
             <h1>Dofus Bot</h1>
             <p>Status: {status}</p>
             <div style={{display: 'flex', flexDirection: "column", gap: '1rem'}}>
