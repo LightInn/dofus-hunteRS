@@ -4,6 +4,7 @@ pub mod config;
 mod ocr;
 mod screenshot;
 mod state;
+mod window;
 
 use tauri::State;
 
@@ -37,13 +38,15 @@ pub fn take_screenshot() -> Result<(), String> {
 
 #[tauri::command]
 pub fn capture_game_region(state: State<'_, AppState>) -> Result<(), String> {
-    let state = state.inner.lock().unwrap();
+    let mut state = state.inner.lock().unwrap();
 
-    let region: ScreenRegion = state.config.regions.hunt_panel.into();
+    let region: ScreenRegion = state.config.regions.coordinates.into();
 
     let image = capture_region(region).map_err(|e| e.to_string())?;
 
-    image.save("image.png").unwrap();
+    let infos = ocr::ocr_coordinates(&image).map_err(|e| e.to_string())?;
+
+
     Ok(())
 }
 
