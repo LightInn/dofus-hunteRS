@@ -3,11 +3,11 @@ use reqwest::{
     header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     StatusCode,
 };
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::time::Duration;
 use thiserror::Error;
 
-use super::config::{ApiConfig, BotConfig};
+use super::config::ApiConfig;
 
 #[derive(Debug, Error)]
 pub enum ApiError {

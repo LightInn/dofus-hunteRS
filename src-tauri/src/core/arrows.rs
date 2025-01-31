@@ -1,4 +1,4 @@
-use image::{DynamicImage, GrayImage};
+use image::DynamicImage;
 use ndarray::Array2;
 use opencv::{core, core::Vector, highgui, imgproc, prelude::*};
 
@@ -20,7 +20,7 @@ pub fn detect_arrow_direction(image: &DynamicImage, debug: bool) -> ArrowDirecti
         unsafe { core::Mat::new_rows_cols(height as i32, width as i32, core::CV_8UC1) }.unwrap();
     for y in 0..height {
         let row = array.row(y);
-        let mut mat_row = ocv_mat.at_row_mut::<u8>(y as i32).unwrap();
+        let mat_row = ocv_mat.at_row_mut::<u8>(y as i32).unwrap();
         mat_row.copy_from_slice(row.as_slice().unwrap());
     }
 

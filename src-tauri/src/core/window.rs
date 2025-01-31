@@ -1,5 +1,5 @@
 use anyhow::Result;
-use enigo::{Direction::Click, Enigo, Key, Keyboard, Mouse, Settings};
+use enigo::{Direction::Click, Enigo, Key, Keyboard, Settings};
 use std::{thread, time::Duration};
 use winapi::{
     shared::windef::{RECT,HWND},

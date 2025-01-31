@@ -1,4 +1,3 @@
-use config::Config;
 use std::sync::{Arc, Mutex};
 
 use super::config::BotConfig;

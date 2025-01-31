@@ -1,6 +1,6 @@
 use xcap::Monitor;
 use xcap::XCapError;
-use image::{DynamicImage, ImageBuffer, Rgba};
+use image::DynamicImage;
 use std::error::Error;
 use std::fmt;
 

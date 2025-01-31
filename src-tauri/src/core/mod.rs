@@ -11,7 +11,7 @@ use tauri::State;
 use crate::core::state::Coord;
 pub use state::ArrowDirection;
 pub use config::BotConfig;
-pub use screenshot::{capture_region, CaptureError, ScreenRegion};
+pub use screenshot::{capture_region, ScreenRegion};
 pub use state::AppState;
 
 #[tauri::command]
@@ -38,7 +38,7 @@ pub fn take_screenshot() -> Result<(), String> {
 
 #[tauri::command]
 pub fn capture_game_region(state: State<'_, AppState>) -> Result<(), String> {
-    let mut state = state.inner.lock().unwrap();
+    let state = state.inner.lock().unwrap();
 
     let region: ScreenRegion = state.config.regions.coordinates.into();
 
