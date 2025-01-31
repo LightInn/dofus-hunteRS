@@ -92,34 +92,18 @@ impl WindowManager {
         let command = format!("/travel {},{}", x, y);
 
         // Simulation réaliste avec délais
-        enigo.key(Key::Return, Click);
+        let _ = enigo.key(Key::Return, Click);
         thread::sleep(Duration::from_millis(50));
 
-        enigo.text(&command);
+        let _ = enigo.text(&command);
         thread::sleep(Duration::from_millis(100));
 
-        enigo.key(Key::Return, Click);
+        let _ = enigo.key(Key::Return, Click);
         thread::sleep(Duration::from_millis(50));
 
-        enigo.key(Key::Return, Click);
+        let _ = enigo.key(Key::Return, Click);
         thread::sleep(Duration::from_millis(50));
 
         Ok(())
     }
 }
-
-fn main() -> Result<()> {
-    let mut window_manager = WindowManager::new();
-
-    window_manager.find_window("Latte")?;
-    window_manager.bring_to_front()?;
-
-    // Délai avant envoi de la commande
-    thread::sleep(Duration::from_millis(300));
-
-    window_manager.send_travel_command(5, 10)?;
-
-    Ok(())
-}
-
-

@@ -1,5 +1,4 @@
 use std::sync::{Arc, Mutex};
-
 use super::config::BotConfig;
 
 #[derive(Default, Debug, Clone, Copy, serde::Serialize)]
@@ -27,9 +26,8 @@ pub struct InnerAppState {
 #[derive(Default)]
 pub struct BotData {
     pub steps: Steps,
+    pub coords: Coords,
     pub current_hint: String,
-    pub start_coord: Coord,
-    pub current_coord: Coord,
     pub current_arrow: ArrowDirection,
 }
 
@@ -43,4 +41,11 @@ pub struct Steps {
 pub struct Coord {
     pub x: i8,
     pub y: i8,
+}
+
+#[derive(Default)]
+pub struct Coords {
+    pub start: Coord,
+    pub current: Coord,
+    pub target: Coord,
 }

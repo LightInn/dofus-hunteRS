@@ -984,26 +984,17 @@ name = "dofus-hunters"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "blocking",
  "config",
  "enigo",
- "fastrand",
  "image",
- "lexopt",
  "ndarray",
  "ocrs",
  "opencv",
- "proc-macro2",
- "quote",
- "rayon",
  "regex",
  "reqwest",
  "rten",
- "rten-imageproc",
- "rten-tensor",
  "serde",
  "serde_json",
- "syn 2.0.96",
  "tauri",
  "tauri-build",
  "tauri-plugin-opener",
@@ -2286,12 +2277,6 @@ name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
-
-[[package]]
-name = "lexopt"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "baff4b617f7df3d896f97fe922b64817f6cd9a756bb81d40f8883f2f66dcb401"
 
 [[package]]
 name = "libappindicator"

@@ -79,7 +79,7 @@ pub fn capture_analyse(state: State<'_, AppState>) -> Result<(), String> {
 
     let infos = ocr::ocr_hunt_panel(&image).map_err(|e| e.to_string())?;
 
-    state.bot_data.start_coord = Coord {
+    state.bot_data.coords.start = Coord {
         x: infos.start_x,
         y: infos.start_y,
     };
@@ -111,8 +111,8 @@ pub fn send_api_request(state: State<'_, AppState>) -> Result<(), String> {
     let state = state.inner.lock().unwrap();
     let config = state.config.api.clone();
 
-    let x = state.bot_data.start_coord.x as i32;
-    let y = state.bot_data.start_coord.y as i32;
+    let x = state.bot_data.coords.start.x as i32;
+    let y = state.bot_data.coords.start.y as i32;
     let direction = match state.bot_data.current_arrow {
         ArrowDirection::Up => "up",
         ArrowDirection::Down => "down",
@@ -132,11 +132,3 @@ pub fn send_api_request(state: State<'_, AppState>) -> Result<(), String> {
 
     Ok(())
 }
-
-// #[tauri::command]
-// fn execute_action(action: Action, state: State<Arc<Mutex<AppState>>>) -> Result<(), String> {
-//     let state = state.lock().unwrap();
-//     let mut handler = ActionHandler::new();
-//     handler.execute(action)?;
-//     Ok(())
-// }
