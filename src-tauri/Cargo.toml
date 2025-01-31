@@ -24,8 +24,7 @@ tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
-ocrs = "0.9.0"
-rten = { version = "0.13.1" }
+
 xcap = "0.2.2"
 opencv = { version = "0.94.2" }
 image = { version = "0.25.5", default-features = false, features = ["png", "jpeg", "webp"] }
@@ -34,12 +33,16 @@ thiserror = "2.0.3"
 config = "0.15.6"
 regex = "1.11.1"
 reqwest = { version = "0.12.12", features = ["blocking", "json"] }
+winapi = { version = "0.3.9", features = ["winuser", "minwindef", "windef"] }
+anyhow = "1.0.93"
+enigo = "0.3.0"
+ocrs = "0.9.0"
+rten = { version = "0.13.1" }
 
 
 blocking = "1.6.1"
 fastrand = "2.1.1"
 lexopt = "0.3.0"
-anyhow = "1.0.93"
 rayon = "1.10.0"
 quote = "1.0.38"
 syn = "2.0.96"
@@ -47,5 +50,18 @@ proc-macro2 = "1.0.93"
 rten-imageproc = { version = "0.13.1" }
 rten-tensor = "0.13.1"
 
+[profile.dev.package.ocrs]
+opt-level = 3
+debug = false
+debug-assertions = false
+overflow-checks = false
+incremental = false
+codegen-units = 1
 
-
+[profile.dev.package.rten]
+opt-level = 3
+debug = false
+debug-assertions = false
+overflow-checks = false
+incremental = false
+codegen-units = 1
