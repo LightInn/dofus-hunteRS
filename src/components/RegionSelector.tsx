@@ -6,6 +6,7 @@ import {getCurrentWindow} from "@tauri-apps/api/window";
 
 export default function RegionSelector() {
     const {region} = useParams<{ region?: string }>();
+    console.log(region);
 
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -15,7 +16,12 @@ export default function RegionSelector() {
 
 
     async function handleSaveRegion() {
-        await invoke('save_region', {region, coordinates: [startPos.x, startPos.y, currentPos.x, currentPos.y]});
+        await invoke('save_region', {
+            regionData: {
+                region,
+                coordinates: [startPos.x, startPos.y, currentPos.x, currentPos.y]
+            }
+        });
     }
 
 
@@ -97,7 +103,7 @@ export default function RegionSelector() {
         const y2 = Math.max(startPos.y, currentPos.y);
 
         console.log([x1, y1, x2, y2]);
-        handleSaveRegion().finally(() => {
+        handleSaveRegion().then(() => {
             // Fermer la fenêtre
             getCurrentWindow().destroy();
         });

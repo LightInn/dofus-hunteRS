@@ -1,7 +1,7 @@
 mod ocr;
 mod core;
 
-use core::{capture_game_region, get_config, start_bot, stop_bot, take_screenshot, update_config, capture_analyse,detect_arrow_direction,send_api_request};
+use core::{capture_game_region, get_config, start_bot, stop_bot, take_screenshot, update_config, capture_analyse,detect_arrow_direction,send_api_request,save_region};
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -24,7 +24,8 @@ pub fn run() {
             update_config,
             capture_analyse,
             detect_arrow_direction,
-            send_api_request
+            send_api_request,
+            save_region
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
