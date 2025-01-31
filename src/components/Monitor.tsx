@@ -21,13 +21,13 @@ interface Steps {
 interface BotData {
     steps: Steps;
     coords: Coords;
-    current_hint: string;
-    current_arrow: string; // Ou un enum si vous préférez
+    currentHint: string;
+    currentArrow: string; // Ou un enum si vous préférez
 }
 
 interface InnerAppState {
     running: boolean;
-    bot_data: BotData;
+    botData: BotData;
 }
 
 const Monitor: React.FC = () => {
@@ -40,7 +40,7 @@ const Monitor: React.FC = () => {
             console.log("Nouvel état reçu :", event.payload);
             setAppState(event.payload);
         });
-        
+
 
         // Nettoyer l'écouteur d'événements lors du démontage du composant
         return () => {
@@ -59,19 +59,19 @@ const Monitor: React.FC = () => {
             <div>
                 <h2>Statut du bot : {appState.running ? "En cours" : "Arrêté"}</h2>
                 <h3>Données du bot :</h3>
-                <p>Étape actuelle : {appState.bot_data.steps.current}</p>
-                <p>Étape totale : {appState.bot_data.steps.total}</p>
-                <p>Indice actuel : {appState.bot_data.current_hint}</p>
-                <p>Direction de la flèche : {appState.bot_data.current_arrow}</p>
+                <p>Étape actuelle : {appState.botData.steps.current}</p>
+                <p>Étape totale : {appState.botData.steps.total}</p>
+                <p>Indice actuel : {appState.botData.currentHint}</p>
+                <p>Direction de la flèche : {appState.botData.currentArrow}</p>
                 <h3>Coordonnées :</h3>
                 <p>
-                    Départ : ({appState.bot_data.coords.start.x}, {appState.bot_data.coords.start.y})
+                    Départ : ({appState.botData.coords.start.x}, {appState.botData.coords.start.y})
                 </p>
                 <p>
-                    Actuel : ({appState.bot_data.coords.current.x}, {appState.bot_data.coords.current.y})
+                    Actuel : ({appState.botData.coords.current.x}, {appState.botData.coords.current.y})
                 </p>
                 <p>
-                    Cible : ({appState.bot_data.coords.target.x}, {appState.bot_data.coords.target.y})
+                    Cible : ({appState.botData.coords.target.x}, {appState.botData.coords.target.y})
                 </p>
             </div>
         </div>
