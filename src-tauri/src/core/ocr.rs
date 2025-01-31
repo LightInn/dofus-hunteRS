@@ -1,25 +1,8 @@
-use image::DynamicImage;
-use ocrs::{ImageSource, OcrEngine, OcrEngineParams};
+use image::{DynamicImage, GrayImage, Luma};
 use regex::Regex;
-use rten::Model;
 use std::error::Error;
-use std::path::PathBuf;
-use std::sync::LazyLock;
 
-static OCR_ENGINE: LazyLock<Result<OcrEngine, Box<dyn Error + Send + Sync>>> =
-    LazyLock::new(|| {
-        let detection_model_path = file_path("ocr_models/text-detection.rten");
-        let rec_model_path = file_path("ocr_models/text-recognition.rten");
-
-        let detection_model = Model::load_file(detection_model_path)?;
-        let recognition_model = Model::load_file(rec_model_path)?;
-
-        Ok(OcrEngine::new(OcrEngineParams {
-            detection_model: Some(detection_model),
-            recognition_model: Some(recognition_model),
-            ..Default::default()
-        })?)
-    });
+use crate::ocr::ocr;
 
 #[derive(Debug)]
 pub struct HuntPanelInfos {
@@ -29,38 +12,6 @@ pub struct HuntPanelInfos {
     pub start_y: i8,
     pub current_hint: String,
     pub attempts_remaining: u8,
-}
-
-/// Given a file path relative to the crate root, return the absolute path.
-fn file_path(path: &str) -> PathBuf {
-    let mut abs_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    abs_path.push(path);
-    abs_path
-}
-
-/// Performs OCR on a given DynamicImage and returns extracted text.
-fn ocr(image: &DynamicImage) -> Result<Vec<String>, Box<dyn Error>> {
-    let engine = OCR_ENGINE.as_ref().map_err(|e| e.to_string())?;
-
-    let img = image.to_rgb8();
-    let img_source = ImageSource::from_bytes(img.as_raw(), img.dimensions())?;
-    let ocr_input = engine.prepare_input(img_source)?;
-
-    let word_rects = engine.detect_words(&ocr_input)?;
-    let line_rects = engine.find_text_lines(&ocr_input, &word_rects);
-
-    let line_texts = engine.recognize_text(&ocr_input, &line_rects)?;
-
-    let extracted_text: Vec<String> = line_texts
-        .iter()
-        .flatten()
-        .filter(|l| l.to_string().len() > 1)
-        .map(|l| l.to_string())
-        .collect();
-
-    parse_hunt_panel_text(extracted_text.clone());
-    // println!("{:?}", extracted_text);
-    Ok(extracted_text)
 }
 
 fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
@@ -138,7 +89,6 @@ fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
             .to_string();
     }
 
-
     infos
 }
 
@@ -151,4 +101,43 @@ pub fn ocr_hunt_panel(image: &DynamicImage) -> Result<HuntPanelInfos, Box<dyn Er
 
     println!("{:?}", infos);
     Ok(infos)
+}
+
+pub fn ocr_coordinates(image: &DynamicImage) -> Result<(), Box<dyn Error>> {
+    // let binary_img = binarize_dynamic_image(&image, 60);
+
+    // show image
+    // binary_img.save("binary_img.png")?;
+
+    let extracted_text = ocr(image)?;
+
+    println!("{:?}", extracted_text);
+    // let infos = parse_hunt_panel_text(extracted_text.clone());
+    //
+    //     ["-4, -24?36%"]
+    //     ["-5,-24- Lev"]
+    //     ["-78, -41-Lel"]
+    //     ["-22, 34-Lev"]
+    //     ["13,27 -Level"]
+
+    // println!("{:?}", infos);
+    Ok(())
+}
+
+fn binarize_dynamic_image(img: &DynamicImage, threshold: u8) -> DynamicImage {
+    let grayscale = img.to_luma8(); // Convertit en niveaux de gris
+    let (width, height) = grayscale.dimensions();
+
+    let mut binary_img = GrayImage::new(width, height);
+
+    for y in 0..height {
+        for x in 0..width {
+            let pixel = grayscale.get_pixel(x, y);
+            let Luma([luma]) = *pixel;
+            let new_pixel = if luma > threshold { 255 } else { 0 };
+            binary_img.put_pixel(x, y, Luma([new_pixel]));
+        }
+    }
+
+    DynamicImage::ImageLuma8(binary_img) // Convertir de GrayImage en DynamicImage
 }
