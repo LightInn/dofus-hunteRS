@@ -1,3 +1,4 @@
+mod ocr;
 mod core;
 
 use core::{capture_game_region, get_config, start_bot, stop_bot, take_screenshot, update_config, capture_analyse,detect_arrow_direction,send_api_request};
