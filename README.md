@@ -90,3 +90,13 @@ Once all dependencies are installed, follow these steps to start your Tauri app:
 Congratulations! You have successfully set up and launched your Tauri application on Windows. For further customization and development, refer to the [Tauri documentation](https://tauri.app/).
 
 Happy coding! 🚀
+
+
+install last version of clang + llvm 
+https://github.com/llvm/llvm-project/releases/tag/llvmorg-19.1.7
+
+
+add them to path 
+
+LLVM_CONFIG_PATH
+LIBCLANG_PATH
