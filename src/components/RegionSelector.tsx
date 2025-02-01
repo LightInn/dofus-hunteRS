@@ -16,7 +16,7 @@ export default function RegionSelector() {
 
 
     async function handleSaveRegion() {
-        await invoke('save_region', {
+        await invoke('call_save_region', {
             regionData: {
                 region,
                 coordinates: [startPos.x, startPos.y, currentPos.x, currentPos.y]

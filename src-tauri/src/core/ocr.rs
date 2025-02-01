@@ -5,14 +5,23 @@ use crate::core::ocr;
 use crate::models::{AppState, Coord, ScreenRegion};
 
 #[tauri::command]
-pub fn call_capture_game_region(state: State<'_, AppState>) -> Result<(), String> {
-    let state = state.inner.lock().unwrap();
+pub fn call_current_coord(state: State<'_, AppState>, app: AppHandle) -> Result<(), String> {
+    let mut state = state.inner.lock().unwrap();
+
+
 
     let region: ScreenRegion = state.config.regions.coordinates.into();
 
     let image = capture_region(region).map_err(|e| e.to_string())?;
 
     let infos = ocr_coordinates(&image).map_err(|e| e.to_string())?;
+
+    // state.bot_data.coords.current = Coord {
+    //     x: infos.x,
+    //     y: infos.y,
+    // };
+
+    app.emit("state_changed", &*state).unwrap();
 
     Ok(())
 }

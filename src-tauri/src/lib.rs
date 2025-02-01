@@ -6,7 +6,7 @@ mod ocr;
 use crate::core::api::call_send_api_request;
 use crate::core::arrows::call_arrow_direction;
 use crate::core::config::{call_get_config, call_save_region, call_update_config};
-use crate::core::ocr::{call_capture_analyse, call_capture_game_region};
+use crate::core::ocr::{call_capture_analyse, call_current_coord};
 use core::call_python;
 
 use crate::models::AppState;
@@ -17,7 +17,7 @@ pub fn run() {
         .manage(AppState::default())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-            call_capture_game_region,
+            call_current_coord,
             call_get_config,
             call_update_config,
             call_capture_analyse,

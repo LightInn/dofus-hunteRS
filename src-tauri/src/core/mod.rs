@@ -11,11 +11,11 @@ use crate::composent::window::WindowManager;
 use crate::models::{AppState, ArrowDirection, Coord, ScreenRegion};
 
 use serde::Deserialize;
-use tauri::State;
+use tauri::{AppHandle, State};
 use tauri::{Emitter, Manager};
 
 #[tauri::command]
-pub fn call_python(state: State<'_, AppState>) -> Result<(), String> {
+pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<(), String> {
     let mut state = state.inner.lock().unwrap();
     let config = state.config.clone();
 
@@ -71,6 +71,8 @@ pub fn call_python(state: State<'_, AppState>) -> Result<(), String> {
     window_manager
         .send_travel_command(response.pos_x, response.pos_y)
         .unwrap();
+
+    app.emit("state_changed", &*state).unwrap();
 
     Ok(())
 }

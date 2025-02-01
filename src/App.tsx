@@ -4,9 +4,10 @@ import {
     Route,
     Routes
 } from "react-router-dom";
-import Home from "./pages/home.tsx";
+import HomePage from "./pages/HomePage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
 import RegionSelector from "./components/RegionSelector.tsx";
+import DebugPage from "./pages/DebugPage.tsx";
 
 
 function App() {
@@ -14,8 +15,9 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<Home/>}/>
+                <Route path="/" element={<HomePage/>}/>
                 <Route path="/settings" element={<SettingsPage/>}/>
+                <Route path="/debug" element={<DebugPage/>}/>
                 <Route path="/region/:region" element={<RegionSelector/>}/>
             </Routes>
         </Router>

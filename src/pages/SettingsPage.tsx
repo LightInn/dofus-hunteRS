@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
 import {invoke} from "@tauri-apps/api/core";
 import {WebviewWindow} from "@tauri-apps/api/webviewWindow";
-import {Link} from "react-router-dom";
+import Navbar from "../components/Navbar.tsx";
 
 interface BotConfig {
     api: {
@@ -27,7 +27,7 @@ export default function SettingsPage() {
     }, []);
 
     const loadConfig = async () => {
-        const config = await invoke<BotConfig>('get_config');
+        const config = await invoke<BotConfig>('call_get_config');
         setConfig(config);
     };
 
@@ -35,7 +35,7 @@ export default function SettingsPage() {
         if (!config) return
 
         const updated = {...config, [section]: {...config[section], [field]: value}};
-        await invoke('update_config', {newConfig: updated});
+        await invoke('call_update_config', {newConfig: updated});
         setConfig(updated);
     };
 
@@ -70,19 +70,7 @@ export default function SettingsPage() {
         <div className="settings-container">
 
 
-            <div>
-                <nav>
-                    <ul>
-                        <li>
-                            <Link to="/">Home</Link>
-                        </li>
-                        <li>
-                            <Link to="/settings">Settings</Link>
-                        </li>
-
-                    </ul>
-                </nav>
-            </div>
+            <Navbar/>
 
 
             <div className="settings-section">

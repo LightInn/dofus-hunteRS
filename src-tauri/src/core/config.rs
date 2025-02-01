@@ -1,4 +1,4 @@
-use tauri::State;
+use tauri::{AppHandle, Emitter, State};
 use crate::composent::config::BotConfig;
 use crate::models::{AppState, RegionCoordinates};
 
@@ -9,6 +9,9 @@ pub async fn call_get_config(state: State<'_, AppState>) -> Result<BotConfig, St
     let state = state.inner.lock().unwrap();
     let config = state.config.clone();
 
+
+
+
     Ok(config)
 }
 
@@ -16,10 +19,14 @@ pub async fn call_get_config(state: State<'_, AppState>) -> Result<BotConfig, St
 pub async fn call_update_config(
     new_config: BotConfig,
     state: State<'_, AppState>,
+    app: AppHandle
 ) -> Result<(), String> {
     let mut app_state = state.inner.lock().unwrap();
     app_state.config = new_config;
     app_state.config.save().map_err(|e| e.to_string())?;
+
+
+    app.emit("state_changed", &*app_state).unwrap();
     Ok(())
 }
 
@@ -30,6 +37,7 @@ pub async fn call_update_config(
 pub async fn call_save_region(
     region_data: RegionCoordinates,
     state: State<'_, AppState>, // Supposons que `AppState` contient votre configuration
+    app: AppHandle
 ) -> Result<(), String> {
     let region = region_data.region;
     let coordinates = region_data.coordinates;
@@ -53,6 +61,8 @@ pub async fn call_save_region(
     }
 
     state.config.save().map_err(|e| e.to_string())?;
+
+    app.emit("state_changed", &*state).unwrap();
 
     println!(
         "Sauvegarde de la région '{}' avec les coordonnées : {:?}",
