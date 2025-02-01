@@ -60,6 +60,13 @@ jobs:
           echo "OPENCV_DIR=/usr" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=/usr/lib/pkgconfig" >> $GITHUB_ENV
 
+      - name: Download OpenCV for Windows
+        run: |
+          wget https://github.com/opencv/opencv/releases/download/4.11.0/opencv-4.11.0-windows.exe
+          7z x opencv-4.11.0-windows.exe -o$HOME/opencv_windows
+          echo "OPENCV_DIR=$HOME/opencv_windows" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=$HOME/opencv_windows/lib/pkgconfig" >> $GITHUB_ENV
+
       - name: Install project dependencies
         run: pnpm install
 
