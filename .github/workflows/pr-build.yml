@@ -6,15 +6,18 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v4
-      - name: 'Install Node'
+
+      - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22.x'
-      - uses: pnpm/action-setup@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
           version: latest
           run_install: |
@@ -38,52 +41,32 @@ jobs:
         with:
           toolchain: stable
           components: rust-src
-          target: x86_64-pc-windows-gnu
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libglib2.0-dev libwebkit2gtk-4.0-dev build-essential curl wget libssl-dev libgtk-3-dev libayatana-appindicator3-dev pkg-config libsoup-3.0-dev libjavascriptcoregtk-4.1-dev libwebkit2gtk-4.1-dev
-
-      - name: Install LLVM & Clang
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y llvm-dev libclang-dev clang
 
       - name: Install OpenCV dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libopencv-dev pkg-config
+          choco install -y llvm --version 16.0.6
+          choco install -y opencv
 
-      - name: Set OpenCV environment variables
+      - name: Set environment variables
         run: |
-          echo "OPENCV_DIR=/usr" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=/usr/lib/pkgconfig" >> $GITHUB_ENV
-
-      - name: Download OpenCV for Windows
-        run: |
-          wget https://github.com/opencv/opencv/releases/download/4.11.0/opencv-4.11.0-windows.exe
-          7z x opencv-4.11.0-windows.exe -o$HOME/opencv_windows
-          echo "OPENCV_DIR=$HOME/opencv_windows" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=$HOME/opencv_windows/lib/pkgconfig" >> $GITHUB_ENV
+          echo "OPENCV_DIR=C:\tools\opencv" >> $env:GITHUB_ENV
+          echo "PKG_CONFIG_PATH=C:\tools\opencv\lib\pkgconfig" >> $env:GITHUB_ENV
+          echo "VCPKGRS_DYNAMIC=1" >> $env:GITHUB_ENV
 
       - name: Install project dependencies
         run: pnpm install
-
-      - name: Install mingw-w64 for cross-compilation
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mingw-w64
 
       - name: Cache Tauri Build
         uses: actions/cache@v3
         with:
           path: |
-            src-tauri/target/x86_64-pc-windows-gnu/release
-            src-tauri/target/x86_64-pc-windows-gnu/debug
+            src-tauri/target/release
+            src-tauri/target/debug
           key: tauri-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
           restore-keys: |
             tauri-${{ runner.os }}-
 
-      - name: Build Tauri app for Windows
-        run: pnpm tauri build --target x86_64-pc-windows-gnu --verbose
+      - name: Build Tauri app
+        run: pnpm tauri build --verbose
+        env:
+          PATH: ${{ env.PATH }};C:\tools\opencv\build\x64\vc16\bin
