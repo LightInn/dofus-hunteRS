@@ -1,9 +1,10 @@
-import {Settings, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, LucideBug} from "lucide-react";
+import {Settings, LucideBug} from "lucide-react";
 import {StatusIndicator} from "../components/status-indicator";
 import {CoordinateInput} from "../components/coordinate-input";
 import {HistoryList} from "../components/history-list";
 import {useState} from "react";
 import {Link} from "react-router-dom";
+import ArrowSelector from "../components/arrow-selector.tsx";
 
 export default function ControlPanel() {
     const [isRunning, setIsRunning] = useState(false);
@@ -15,23 +16,9 @@ export default function ControlPanel() {
         {id: "2", isStart: false, x: 10, y: 20},
     ]);
 
-    const getDirectionIcon = () => {
-        const iconStyle = {height: "1rem", width: "1rem"};
-        switch (direction) {
-            case "up":
-                return <ArrowUp style={iconStyle}/>;
-            case "down":
-                return <ArrowDown style={iconStyle}/>;
-            case "left":
-                return <ArrowLeft style={iconStyle}/>;
-            case "right":
-                return <ArrowRight style={iconStyle}/>;
-        }
-    };
-
 
     return (
-        <div style={{minHeight: "100vh", backgroundColor: "var(--background)"}}>
+        <div style={{minHeight: "100vh", backgroundColor: "var(--background)", overflow: "hidden", overflowY: "hidden"}}>
             <header
                 style={{
                     display: "flex",
@@ -71,7 +58,7 @@ export default function ControlPanel() {
 
                 <div style={{display: "flex", alignItems: "center", gap: "1rem"}}>
                     <CoordinateInput onReload={() => console.log("Reloading coordinates...")}/>
-                    <button style={{width: "5rem"}}>{getDirectionIcon()}</button>
+                    <ArrowSelector direction={direction}/>
                 </div>
 
                 <input

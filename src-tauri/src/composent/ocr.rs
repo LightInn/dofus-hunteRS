@@ -138,7 +138,7 @@ pub fn ocr_coordinates(image: &DynamicImage) -> Result<Option<(i8, i8)>> {
 
     let extracted_text = ocr(image)?;
 
-    println!("{:?}", extracted_text);
+    // println!("{:?}", extracted_text);
     let parsed_coordinates = parse_coordinates(extracted_text.clone());
     println!("{:?}", parsed_coordinates);
 
