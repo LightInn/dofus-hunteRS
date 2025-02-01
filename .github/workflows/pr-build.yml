@@ -28,6 +28,27 @@ jobs:
           toolchain: stable
           components: rust-src
 
+      - name: Cache Cargo
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
+
+      - name: Cache Tauri Build
+        uses: actions/cache@v3
+        with:
+          path: |
+            src-tauri/target/release
+            src-tauri/target/debug
+          key: tauri-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            tauri-${{ runner.os }}-
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -37,6 +58,16 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y llvm-dev libclang-dev clang
+
+      - name: Install OpenCV dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libopencv-dev pkg-config
+
+      - name: Set OpenCV environment variables
+        run: |
+          echo "OPENCV_DIR=/usr" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=/usr/lib/pkgconfig" >> $GITHUB_ENV
 
 
       - name: Install project dependencies

@@ -31,6 +31,27 @@ jobs:
       - name: Install project dependencies
         run: pnpm install
 
+      - name: Cache Cargo
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
+
+      - name: Cache Tauri Build
+        uses: actions/cache@v3
+        with:
+          path: |
+            src-tauri/target/release
+            src-tauri/target/debug
+          key: tauri-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            tauri-${{ runner.os }}-
+
       - name: Build Tauri app for Windows
         run: pnpm tauri build --verbose --target x86_64-pc-windows-msvc
 
