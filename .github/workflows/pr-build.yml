@@ -9,14 +9,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
+      - uses: actions/checkout@v4
+      - name: 'Install Node'
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: 'pnpm'
+          node-version: '22.x'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+          run_install: |
+            - recursive: true
+              args: [--frozen-lockfile]
+            - args: [--global, gulp, prettier, vitest]
 
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
