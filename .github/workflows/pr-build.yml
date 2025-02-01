@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
@@ -27,12 +27,6 @@ jobs:
         with:
           toolchain: stable
           components: rust-src
-
-      - name: Add Debian Sid repo & Install dependencies
-        run: |
-          echo "deb http://deb.debian.org/debian sid main" | sudo tee -a /etc/apt/sources.list
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev
 
       - name: Install system dependencies
         run: |
