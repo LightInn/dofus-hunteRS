@@ -98,5 +98,7 @@ https://github.com/llvm/llvm-project/releases/tag/llvmorg-19.1.7
 
 add them to path 
 
-LLVM_CONFIG_PATH
-LIBCLANG_PATH
+LLVM_CONFIG_PATH=C:\tools\llvm\bin\llvm-config.exe
+LIBCLANG_PATH=C:\tools\llvm\bin
+VCPKG_ROOT=C:\tools\vcpkg
+VCPKGRS_DYNAMIC=1
