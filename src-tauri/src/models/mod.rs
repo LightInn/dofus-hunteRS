@@ -69,26 +69,13 @@ pub struct RegionCoordinates {
 
 
 /// Représente une région de l'écran avec des coordonnées (x, y, width, height)
-pub type ScreenRegion = (i32, i32, u32, u32);
+pub type ScreenRegion = (i32, i32, i32, i32);
 
 
 // api models
-
-#[derive(Debug, Error)]
-pub enum ApiError {
-    #[error("Authentication error: {0}")]
-    AuthError(String),
-    #[error("HTTP error: {0}")]
-    HttpError(#[from] reqwest::Error),
-    #[error("Invalid header: {0}")]
-    InvalidHeader(String),
-    #[error("JSON error: {0}")]
-    JsonError(#[from] serde_json::Error),
-}
-
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Default)]
 pub struct LocationData {
-    pub pos_x: i32,
-    pub pos_y: i32,
-    pub distance: i32,
+    pub pos_x: i8,
+    pub pos_y: i8,
+    pub distance: u8,
 }

@@ -1,42 +1,38 @@
-use tauri::{AppHandle, Emitter, State};
 use crate::composent::ocr::{ocr_coordinates, ocr_hunt_panel};
 use crate::composent::screenshot::capture_region;
-use crate::core::ocr;
 use crate::models::{AppState, Coord, ScreenRegion};
+use tauri::{AppHandle, Emitter, State};
+use crate::core::error::Result;
 
 #[tauri::command]
-pub fn call_current_coord(state: State<'_, AppState>, app: AppHandle) -> Result<(), String> {
+pub fn call_current_coord(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
     let mut state = state.inner.lock().unwrap();
-
-
 
     let region: ScreenRegion = state.config.regions.coordinates.into();
 
-    let image = capture_region(region).map_err(|e| e.to_string())?;
+    let image = capture_region(region)?;
 
-    let infos = ocr_coordinates(&image).map_err(|e| e.to_string())?;
+    let coordinates = ocr_coordinates(&image)?.unwrap_or_default();
 
-    // state.bot_data.coords.current = Coord {
-    //     x: infos.x,
-    //     y: infos.y,
-    // };
+    state.bot_data.coords.current = Coord {
+        x: coordinates.0,
+        y: coordinates.1,
+    };
 
     app.emit("state_changed", &*state).unwrap();
 
     Ok(())
 }
 
-
-
 #[tauri::command]
-pub fn call_capture_analyse(state: State<'_, AppState>, app: AppHandle) -> Result<(), String> {
+pub fn call_capture_analyse(state: State<'_, AppState>, app: AppHandle) -> Result<()>{
     let mut state = state.inner.lock().unwrap();
 
     let region: ScreenRegion = state.config.regions.hunt_panel.into();
 
-    let image = capture_region(region).map_err(|e| e.to_string())?;
+    let image = capture_region(region)?;
 
-    let infos = ocr_hunt_panel(&image).map_err(|e| e.to_string())?;
+    let infos = ocr_hunt_panel(&image)?;
 
     state.bot_data.coords.start = Coord {
         x: infos.start_x,

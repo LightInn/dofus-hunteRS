@@ -7,17 +7,16 @@ use std::sync::LazyLock;
 const DETECTION_MODEL: &[u8; 2510284] = include_bytes!("text-detection.rten");
 const RECOGNITION_MODEL: &[u8; 9716568] = include_bytes!("text-recognition.rten");
 
-static OCR_ENGINE: LazyLock<Result<OcrEngine, Box<dyn Error + Send + Sync>>> =
-    LazyLock::new(|| {
-        let detection_model = Model::load_static_slice(DETECTION_MODEL)?;
-        let recognition_model = Model::load_static_slice(RECOGNITION_MODEL)?;
+static OCR_ENGINE: LazyLock<Result<OcrEngine, Box<dyn std::error::Error + Send + Sync>>> = LazyLock::new(|| {
+    let detection_model = Model::load_static_slice(DETECTION_MODEL)?;
+    let recognition_model = Model::load_static_slice(RECOGNITION_MODEL)?;
 
-        Ok(OcrEngine::new(OcrEngineParams {
-            detection_model: Some(detection_model),
-            recognition_model: Some(recognition_model),
-            ..Default::default()
-        })?)
-    });
+    Ok(OcrEngine::new(OcrEngineParams {
+        detection_model: Some(detection_model),
+        recognition_model: Some(recognition_model),
+        ..Default::default()
+    })?)
+});
 
 #[derive(Debug)]
 pub struct HuntPanelInfos {
@@ -30,8 +29,8 @@ pub struct HuntPanelInfos {
 }
 
 /// Performs OCR on a given DynamicImage and returns extracted text.
-pub fn ocr(image: &DynamicImage) -> Result<Vec<String>, Box<dyn Error>> {
-    let engine = OCR_ENGINE.as_ref().map_err(|e| e.to_string())?;
+pub fn ocr(image: &DynamicImage) -> crate::core::error::Result<Vec<String>> {
+    let engine = OCR_ENGINE.as_ref().unwrap();
 
     let img = image.to_rgb8();
     let img_source = ImageSource::from_bytes(img.as_raw(), img.dimensions())?;

@@ -1,6 +1,7 @@
 pub mod api;
 pub mod arrows;
 pub mod config;
+pub mod error;
 pub mod ocr;
 
 use crate::composent::api::find_next_location;
@@ -10,19 +11,21 @@ use crate::composent::screenshot::capture_region;
 use crate::composent::window::WindowManager;
 use crate::models::{AppState, ArrowDirection, Coord, ScreenRegion};
 
+use error::Result;
+
 use serde::Deserialize;
 use tauri::{AppHandle, State};
 use tauri::{Emitter, Manager};
 
 #[tauri::command]
-pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<(), String> {
+pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
     let mut state = state.inner.lock().unwrap();
     let config = state.config.clone();
 
     let region: ScreenRegion = state.config.regions.hunt_panel.into();
-    let image = capture_region(region).map_err(|e| e.to_string())?;
+    let image = capture_region(region)?;
 
-    let infos = ocr_hunt_panel(&image).map_err(|e| e.to_string())?;
+    let infos = ocr_hunt_panel(&image)?;
 
     state.bot_data.coords.start = Coord {
         x: infos.start_x,
@@ -57,12 +60,10 @@ pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<(), Str
         x, y, direction, hint
     );
 
-    let response = find_next_location(config.api, x, y, direction, &hint)
-        .map_err(|e| e.to_string())?
-        .unwrap();
+    let response = find_next_location(config.api, x, y, direction, &hint)?.unwrap_or_default();
 
-    state.bot_data.coords.target.x = response.pos_x as i8;
-    state.bot_data.coords.target.y = response.pos_y as i8;
+    state.bot_data.coords.target.x = response.pos_x;
+    state.bot_data.coords.target.y = response.pos_y;
 
     let mut window_manager = WindowManager::new();
 

@@ -7,8 +7,8 @@ import {Link} from "react-router-dom";
 
 export default function ControlPanel() {
     const [isRunning, setIsRunning] = useState(false);
-    const [apiStatus, setApiStatus] = useState<"inactive" | "loading" | "active" | "error">("inactive");
-    const [direction, setDirection] = useState<"up" | "down" | "left" | "right">("up");
+    const [apiStatus] = useState<"inactive" | "loading" | "active" | "error">("inactive");
+    const [direction] = useState<"up" | "down" | "left" | "right">("up");
     const [hint, setHint] = useState("");
     const [points, setPoints] = useState([
         {id: "1", isStart: true, x: 0, y: 0},

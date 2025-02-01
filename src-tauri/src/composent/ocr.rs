@@ -1,6 +1,7 @@
+use crate::core::error::Error;
+use crate::core::error::Result;
 use image::{DynamicImage, GrayImage, Luma};
 use regex::Regex;
-use std::error::Error;
 
 use crate::ocr::ocr;
 
@@ -104,9 +105,21 @@ fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
     infos
 }
 
-// Text: [" TREASURE HUNT", "STEP: 1/3", "O Start [-6,-53]", "Cania Plains (Stontusk Desert)", "IN PROGRESS O", "1 Striped Mushroom", "CONFIRM", "4 attempts remaining", "WAMA", "NWS"]
+fn parse_coordinates(text: Vec<String>) -> Result<Option<(i8, i8)>> {
+    let coord_re = Regex::new(r"(-?\d+),\s*(-?\d+)")?;
 
-pub fn ocr_hunt_panel(image: &DynamicImage) -> Result<HuntPanelInfos, Box<dyn Error>> {
+    for line in text.iter() {
+        if let Some(caps) = coord_re.captures(line) {
+            if let (Ok(x), Ok(y)) = (caps[1].parse::<i8>(), caps[2].parse::<i8>()) {
+                return Ok(Some((x, y)));
+            }
+        }
+    }
+
+    Ok(None) // Aucun match trouvé
+}
+
+pub fn ocr_hunt_panel(image: &DynamicImage) -> Result<HuntPanelInfos> {
     let extracted_text = ocr(image)?;
 
     println!("{:?}", extracted_text);
@@ -117,7 +130,7 @@ pub fn ocr_hunt_panel(image: &DynamicImage) -> Result<HuntPanelInfos, Box<dyn Er
     Ok(infos)
 }
 
-pub fn ocr_coordinates(image: &DynamicImage) -> Result<(), Box<dyn Error>> {
+pub fn ocr_coordinates(image: &DynamicImage) -> Result<Option<(i8, i8)>> {
     // let binary_img = binarize_dynamic_image(&image, 60);
 
     // show image
@@ -126,6 +139,9 @@ pub fn ocr_coordinates(image: &DynamicImage) -> Result<(), Box<dyn Error>> {
     let extracted_text = ocr(image)?;
 
     println!("{:?}", extracted_text);
+    let parsed_coordinates = parse_coordinates(extracted_text.clone());
+    println!("{:?}", parsed_coordinates);
+
     // let infos = parse_hunt_panel_text(extracted_text.clone());
     //
     //     ["-4, -24?36%"]
@@ -134,8 +150,7 @@ pub fn ocr_coordinates(image: &DynamicImage) -> Result<(), Box<dyn Error>> {
     //     ["-22, 34-Lev"]
     //     ["13,27 -Level"]
 
-    // println!("{:?}", infos);
-    Ok(())
+    Ok(parsed_coordinates?)
 }
 
 fn binarize_dynamic_image(img: &DynamicImage, threshold: u8) -> DynamicImage {

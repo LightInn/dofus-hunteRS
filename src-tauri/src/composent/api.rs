@@ -3,10 +3,9 @@ use reqwest::{
     header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     StatusCode,
 };
-use serde::Deserialize;
 use std::time::Duration;
-use thiserror::Error;
-use crate::models::{ApiError, LocationData};
+use crate::core::error::ApiError;
+use crate::models::{LocationData};
 use super::config::ApiConfig;
 
 

@@ -86,7 +86,7 @@ impl WindowManager {
         }
     }
 
-    pub fn send_travel_command(&self, x: i32, y: i32) -> Result<()> {
+    pub fn send_travel_command(&self, x: i8, y: i8) -> Result<()> {
         let settings = Settings::default();
         let mut enigo = Enigo::new(&settings)?;
         let command = format!("/travel {},{}", x, y);

@@ -26,9 +26,9 @@ pub struct WindowConfig {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RegionConfig {
-    pub coordinates: (i32, i32, u32, u32),
-    pub hunt_panel: (i32, i32, u32, u32),
-    pub chat: (i32, i32, u32, u32),
+    pub coordinates: (i32, i32, i32, i32),
+    pub hunt_panel: (i32, i32, i32, i32),
+    pub chat: (i32, i32, i32, i32),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -65,7 +65,7 @@ impl BotConfig {
 
     pub fn save(&self) -> Result<(), std::io::Error> {
         let contents = serde_json::to_string_pretty(self)?;
-        std::fs::write("../../config.json", contents)?;
+        std::fs::write("config.json", contents)?;
         Ok(())
     }
 }
