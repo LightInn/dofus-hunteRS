@@ -22,12 +22,6 @@ jobs:
               args: [--frozen-lockfile]
             - args: [--global, gulp, prettier, vitest]
 
-      - name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: stable
-          components: rust-src
-
       - name: Cache Cargo
         uses: actions/cache@v3
         with:
@@ -39,15 +33,12 @@ jobs:
           restore-keys: |
             cargo-${{ runner.os }}-
 
-      - name: Cache Tauri Build
-        uses: actions/cache@v3
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          path: |
-            src-tauri/target/release
-            src-tauri/target/debug
-          key: tauri-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
-          restore-keys: |
-            tauri-${{ runner.os }}-
+          toolchain: stable
+          components: rust-src
+          target: x86_64-pc-windows-gnu
 
       - name: Install system dependencies
         run: |
@@ -69,9 +60,23 @@ jobs:
           echo "OPENCV_DIR=/usr" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=/usr/lib/pkgconfig" >> $GITHUB_ENV
 
-
       - name: Install project dependencies
         run: pnpm install
 
-      - name: Build Tauri app
-        run: pnpm tauri build --verbose
+      - name: Install mingw-w64 for cross-compilation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mingw-w64
+
+      - name: Cache Tauri Build
+        uses: actions/cache@v3
+        with:
+          path: |
+            src-tauri/target/x86_64-pc-windows-gnu/release
+            src-tauri/target/x86_64-pc-windows-gnu/debug
+          key: tauri-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            tauri-${{ runner.os }}-
+
+      - name: Build Tauri app for Windows
+        run: pnpm tauri build --target x86_64-pc-windows-gnu --verbose
