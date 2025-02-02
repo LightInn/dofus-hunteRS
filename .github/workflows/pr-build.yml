@@ -60,28 +60,37 @@ jobs:
       - name: Set environment variables
         run: |
           echo "OPENCV_DIR=C:\tools\opencv" >> $env:GITHUB_ENV
+          echo "OPENCV_LIB_DIR=C:\tools\opencv\build\x64\vc16\lib" >> $env:GITHUB_ENV
+          echo "OPENCV_INCLUDE_DIR=C:\tools\opencv\build\include" >> $env:GITHUB_ENV
+          echo "OPENCV_BIN_DIR=C:\tools\opencv\build\x64\vc16\bin" >> $env:GITHUB_ENV
+          echo "OPENCV_LINK_LIBS=opencv_world460" >> $env:GITHUB_ENV
+          echo "OPENCV_LINK_PATHS=C:\tools\opencv\build\x64\vc16\lib" >> $env:GITHUB_ENV
+          echo "OPENCV_INCLUDE_PATHS=C:\tools\opencv\build\include" >> $env:GITHUB_ENV
           echo "PKG_CONFIG_PATH=C:\tools\opencv\lib\pkgconfig" >> $env:GITHUB_ENV
           echo "VCPKGRS_DYNAMIC=1" >> $env:GITHUB_ENV
 
-      - name: vcpkg build
-        uses: johnwason/vcpkg-action@v6
-        id: vcpkg
-        with:
-          pkgs: opencv[contrib]
-          triplet: x64-windows
-          token: ${{ github.token }}
-          github-binarycache: true
+      #      - name: vcpkg build
+      #        uses: johnwason/vcpkg-action@v6
+      #        id: vcpkg
+      #        with:
+      #          pkgs: opencv[contrib]
+      #          triplet: x64-windows
+      #          token: ${{ github.token }}
+      #          github-binarycache: true
 
-      - name: Configure environment variables
-        run: |
-          echo "VCPKG_ROOT=C:\Program Files\vcpkg" >> $env:GITHUB_ENV
-          echo "OpenCV_DIR=C:\Program Files\vcpkg\installed\x64-windows\share\opencv" >> $env:GITHUB_ENV
-          echo "OPENCV_LINK_LIBS=opencv_world460" >> $env:GITHUB_ENV
-          echo "OPENCV_LINK_PATHS=C:\Program Files\vcpkg\installed\x64-windows\lib" >> $env:GITHUB_ENV
-          echo "OPENCV_INCLUDE_PATHS=C:\Program Files\vcpkg\installed\x64-windows\include" >> $env:GITHUB_ENV
+      #      - name: Configure environment variables
+      #        run: |
+      #          echo "VCPKG_ROOT=C:\Program Files\vcpkg" >> $env:GITHUB_ENV
+      #          echo "OpenCV_DIR=C:\Program Files\vcpkg\installed\x64-windows\share\opencv" >> $env:GITHUB_ENV
+      #          echo "OPENCV_LINK_LIBS=opencv_world460" >> $env:GITHUB_ENV
+      #          echo "OPENCV_LINK_PATHS=C:\Program Files\vcpkg\installed\x64-windows\lib" >> $env:GITHUB_ENV
+      #          echo "OPENCV_INCLUDE_PATHS=C:\Program Files\vcpkg\installed\x64-windows\include" >> $env:GITHUB_ENV
 
       - name: Add OpenCV DLLs to PATH
-        run: echo "C:\tools\opencv\build\x64\vc16\bin" >> $env:GITHUB_PATH
+        run: |
+          echo "C:\tools\opencv\build\x64\vc16\bin" >> $env:GITHUB_PATH
+          echo "src-tauri/dll" >> $env:GITHUB_PATH
+
 
       - name: Install project dependencies
         run: pnpm install
