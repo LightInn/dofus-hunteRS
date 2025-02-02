@@ -62,6 +62,22 @@ jobs:
           echo "OPENCV_DIR=C:\tools\opencv" >> $env:GITHUB_ENV
           echo "PKG_CONFIG_PATH=C:\tools\opencv\lib\pkgconfig" >> $env:GITHUB_ENV
           echo "VCPKGRS_DYNAMIC=1" >> $env:GITHUB_ENV
+          
+
+      - name: Install OpenCV with vcpkg
+        run: |
+          choco install -y vcpkg
+          refreshenv
+          vcpkg integrate install
+          vcpkg install opencv[contrib] --triplet x64-windows
+
+      - name: Configure environment variables
+        run: |
+          echo "VCPKG_ROOT=C:\Program Files\vcpkg" >> $env:GITHUB_ENV
+          echo "OpenCV_DIR=C:\Program Files\vcpkg\installed\x64-windows\share\opencv" >> $env:GITHUB_ENV
+          echo "OPENCV_LINK_LIBS=opencv_world460" >> $env:GITHUB_ENV
+          echo "OPENCV_LINK_PATHS=C:\Program Files\vcpkg\installed\x64-windows\lib" >> $env:GITHUB_ENV
+          echo "OPENCV_INCLUDE_PATHS=C:\Program Files\vcpkg\installed\x64-windows\include" >> $env:GITHUB_ENV
 
       - name: Add OpenCV DLLs to PATH
         run: echo "C:\tools\opencv\build\x64\vc16\bin" >> $env:GITHUB_PATH
