@@ -25,14 +25,15 @@ jobs:
               args: [--frozen-lockfile]
             - args: [--global, gulp, prettier, vitest]
 
-      - name: Cache Cargo
+      - name: Restore Rust cache
         uses: actions/cache@v3
+        id: rust-cache
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            target
-          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+            src-tauri/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
           restore-keys: |
             cargo-${{ runner.os }}-
 
@@ -41,6 +42,14 @@ jobs:
         with:
           toolchain: stable
           components: rust-src
+          cache: 'true'
+          cache-directories:
+            - ~/.cargo/registry
+            - ~/.cargo/git
+            - src-tauri/target
+          rustflags: '-Awarnings'
+
+
 
       - name: Add Rust to PATH
         run: echo "$HOME/.cargo/bin" >> $env:GITHUB_PATH
@@ -107,3 +116,17 @@ jobs:
 
       - name: Build Tauri app
         run: pnpm tauri build --verbose
+
+    post: always
+            - name: Save partial Rust cache
+            if: ${{ always() }}
+            uses: actions/cache@v3
+            with:
+              path: |
+                ~/.cargo/registry
+                ~/.cargo/git
+                src-tauri/target
+              key: cargo-${{ runner.os }}-partial-${{ github.run_id }}
+              restore-keys: |
+                cargo-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
+                cargo-${{ runner.os }}-
