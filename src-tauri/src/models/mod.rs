@@ -2,7 +2,6 @@ use crate::composent::config::BotConfig;
 
 use std::sync::{Arc, Mutex};
 use serde::Deserialize;
-use thiserror::Error;
 
 #[derive(Default, Debug, Clone, Copy, serde::Serialize)]
 #[serde(rename_all = "camelCase")]

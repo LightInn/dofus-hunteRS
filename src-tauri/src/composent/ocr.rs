@@ -1,6 +1,5 @@
-use crate::core::error::Error;
 use crate::core::error::Result;
-use image::{DynamicImage, GrayImage, Luma};
+use image::{DynamicImage};
 use regex::Regex;
 
 use crate::ocr::ocr;
@@ -31,7 +30,7 @@ fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
     let mut hint_candidate = None;
     let mut hint_validated = None;
 
-    for (i, line) in text.iter().enumerate() {
+    for (_i, line) in text.iter().enumerate() {
         // Extraction des étapes
         if let Some(caps) = step_re.captures(line) {
             infos.step_current = caps[1].parse().unwrap_or(0);
@@ -92,7 +91,7 @@ fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
             .to_string();
 
         // on supprimes les mots entiers lorsqu'ils sont en majuscule
-        let mut hint_words = infos.current_hint.split_whitespace().collect::<Vec<&str>>();
+        let hint_words = infos.current_hint.split_whitespace().collect::<Vec<&str>>();
         let mut hint_words_filtered = Vec::new();
         for word in hint_words.iter() {
             if !word.chars().all(|c| c.is_uppercase()) {
@@ -153,20 +152,20 @@ pub fn ocr_coordinates(image: &DynamicImage) -> Result<Option<(i8, i8)>> {
     Ok(parsed_coordinates?)
 }
 
-fn binarize_dynamic_image(img: &DynamicImage, threshold: u8) -> DynamicImage {
-    let grayscale = img.to_luma8(); // Convertit en niveaux de gris
-    let (width, height) = grayscale.dimensions();
-
-    let mut binary_img = GrayImage::new(width, height);
-
-    for y in 0..height {
-        for x in 0..width {
-            let pixel = grayscale.get_pixel(x, y);
-            let Luma([luma]) = *pixel;
-            let new_pixel = if luma > threshold { 255 } else { 0 };
-            binary_img.put_pixel(x, y, Luma([new_pixel]));
-        }
-    }
-
-    DynamicImage::ImageLuma8(binary_img) // Convertir de GrayImage en DynamicImage
-}
+// fn binarize_dynamic_image(img: &DynamicImage, threshold: u8) -> DynamicImage {
+//     let grayscale = img.to_luma8(); // Convertit en niveaux de gris
+//     let (width, height) = grayscale.dimensions();
+//
+//     let mut binary_img = GrayImage::new(width, height);
+//
+//     for y in 0..height {
+//         for x in 0..width {
+//             let pixel = grayscale.get_pixel(x, y);
+//             let Luma([luma]) = *pixel;
+//             let new_pixel = if luma > threshold { 255 } else { 0 };
+//             binary_img.put_pixel(x, y, Luma([new_pixel]));
+//         }
+//     }
+//
+//     DynamicImage::ImageLuma8(binary_img) // Convertir de GrayImage en DynamicImage
+// }

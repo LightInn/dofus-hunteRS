@@ -1,7 +1,6 @@
 use image::DynamicImage;
 use ocrs::{ImageSource, OcrEngine, OcrEngineParams};
 use rten::Model;
-use std::error::Error;
 use std::sync::LazyLock;
 
 const DETECTION_MODEL: &[u8; 2510284] = include_bytes!("text-detection.rten");

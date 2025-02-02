@@ -13,9 +13,8 @@ use crate::models::{AppState, ArrowDirection, Coord, ScreenRegion};
 
 use error::Result;
 
-use serde::Deserialize;
 use tauri::{AppHandle, State};
-use tauri::{Emitter, Manager};
+use tauri::{Emitter};
 
 #[tauri::command]
 pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
