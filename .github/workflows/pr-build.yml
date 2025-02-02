@@ -45,16 +45,26 @@ jobs:
       - name: Add Rust to PATH
         run: echo "$HOME/.cargo/bin" >> $env:GITHUB_PATH
 
+      - name: Check Cargo installation
+        run: cargo --version
+
       - name: Install OpenCV dependencies
         run: |
           choco install -y llvm --version 16.0.6
           choco install -y opencv
+
+      - name: Verify OpenCV installation
+        run: |
+          ls C:\tools\opencv\build\x64\vc16\bin
 
       - name: Set environment variables
         run: |
           echo "OPENCV_DIR=C:\tools\opencv" >> $env:GITHUB_ENV
           echo "PKG_CONFIG_PATH=C:\tools\opencv\lib\pkgconfig" >> $env:GITHUB_ENV
           echo "VCPKGRS_DYNAMIC=1" >> $env:GITHUB_ENV
+
+      - name: Add OpenCV DLLs to PATH
+        run: echo "C:\tools\opencv\build\x64\vc16\bin" >> $env:GITHUB_PATH
 
       - name: Install project dependencies
         run: pnpm install
@@ -71,5 +81,3 @@ jobs:
 
       - name: Build Tauri app
         run: pnpm tauri build --verbose
-        env:
-          PATH: ${{ env.PATH }};C:\tools\opencv\build\x64\vc16\bin
