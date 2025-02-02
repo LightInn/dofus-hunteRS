@@ -6,7 +6,7 @@ import {useState} from "react";
 import {Link} from "react-router-dom";
 import ArrowSelector from "../components/arrow-selector.tsx";
 
-export default function ControlPanel() {
+export default function HomePage() {
     const [isRunning, setIsRunning] = useState(false);
     const [apiStatus] = useState<"inactive" | "loading" | "active" | "error">("inactive");
     const [direction] = useState<"up" | "down" | "left" | "right">("up");
@@ -16,9 +16,9 @@ export default function ControlPanel() {
         {id: "2", isStart: false, x: 10, y: 20},
     ]);
 
-
     return (
-        <div style={{minHeight: "100vh", backgroundColor: "var(--background)", overflow: "hidden", overflowY: "hidden"}}>
+        <div
+            style={{minHeight: "100vh", backgroundColor: "var(--background)", overflow: "hidden", overflowY: "hidden"}}>
             <header
                 style={{
                     display: "flex",
