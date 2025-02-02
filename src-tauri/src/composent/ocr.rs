@@ -41,7 +41,7 @@ fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
         else if let Some(caps) = coord_re.captures(line) {
             infos.start_x = caps[1].parse().unwrap_or(0);
             // if the first char is "-", then we need to take 3 chars
-            if (caps[2].chars().next().unwrap_or('0')) == '-' {
+            if caps[2].as_bytes().first().map(|&c| c as char).unwrap_or('0') == '-' {
                 infos.start_y = caps[2]
                     .chars()
                     .take(3)
