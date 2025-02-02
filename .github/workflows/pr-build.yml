@@ -62,14 +62,15 @@ jobs:
           echo "OPENCV_DIR=C:\tools\opencv" >> $env:GITHUB_ENV
           echo "PKG_CONFIG_PATH=C:\tools\opencv\lib\pkgconfig" >> $env:GITHUB_ENV
           echo "VCPKGRS_DYNAMIC=1" >> $env:GITHUB_ENV
-          
 
-      - name: Install OpenCV with vcpkg
-        run: |
-          choco install -y vcpkg
-          refreshenv
-          vcpkg integrate install
-          vcpkg install opencv[contrib] --triplet x64-windows
+      - name: vcpkg build
+        uses: johnwason/vcpkg-action@v6
+        id: vcpkg
+        with:
+          pkgs: opencv[contrib]
+          triplet: x64-windows
+          token: ${{ github.token }}
+          github-binarycache: true
 
       - name: Configure environment variables
         run: |
