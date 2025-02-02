@@ -44,9 +44,9 @@ jobs:
           components: rust-src
           cache: 'true'
           cache-directories:
-            - ~/.cargo/registry
-            - ~/.cargo/git
-            - src-tauri/target
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
           rustflags: '-Awarnings'
 
 
