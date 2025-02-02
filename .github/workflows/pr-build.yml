@@ -72,7 +72,7 @@ jobs:
           echo "OPENCV_LIB_DIR=C:\tools\opencv\build\x64\vc16\lib" >> $env:GITHUB_ENV
           echo "OPENCV_INCLUDE_DIR=C:\tools\opencv\build\include" >> $env:GITHUB_ENV
           echo "OPENCV_BIN_DIR=C:\tools\opencv\build\x64\vc16\bin" >> $env:GITHUB_ENV
-          echo "OPENCV_LINK_LIBS="jpeg62","liblzma","libpng16","libsharpyuv","libwebp","libwebpdecoder","opencv_core4","opencv_highgui4","opencv_imgcodecs4","opencv_imgproc4","opencv_videoio4", "tiff","zlib" >> $env:GITHUB_ENV
+          echo "OPENCV_LINK_LIBS='jpeg62','liblzma','libpng16','libsharpyuv','libwebp','libwebpdecoder','opencv_core4','opencv_highgui4','opencv_imgcodecs4','opencv_imgproc4','opencv_videoio4','tiff','zlib'" >> $env:GITHUB_ENV
           echo "OPENCV_LINK_PATHS=C:\tools\opencv\build\x64\vc16\lib" >> $env:GITHUB_ENV
           echo "OPENCV_INCLUDE_PATHS=C:\tools\opencv\build\include" >> $env:GITHUB_ENV
           echo "PKG_CONFIG_PATH=C:\tools\opencv\lib\pkgconfig" >> $env:GITHUB_ENV
