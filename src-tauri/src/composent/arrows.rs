@@ -104,7 +104,7 @@ pub fn detect_arrow_direction(image: &DynamicImage, debug: bool) -> ArrowDirecti
             .unwrap();
 
         // Dessiner chaque contour
-        for (i, contour) in contours.iter().enumerate() {
+        for (i, _contour) in contours.iter().enumerate() {
             let color = core::Scalar::new(0.0, 255.0, 0.0, 0.0); // Couleur verte
             imgproc::draw_contours(
                 &mut drawing,

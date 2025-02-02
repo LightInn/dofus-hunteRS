@@ -1,10 +1,7 @@
 use crate::core::error::CaptureError;
 use crate::models::ScreenRegion;
 use image::DynamicImage;
-use std::error::Error;
-use std::fmt;
 use xcap::Monitor;
-use xcap::XCapError;
 
 /// Capture une région spécifique de l'écran
 pub fn capture_region(region: ScreenRegion) -> Result<DynamicImage, CaptureError> {

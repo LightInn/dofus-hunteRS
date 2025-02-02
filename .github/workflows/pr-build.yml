@@ -6,34 +6,127 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: 'pnpm'
+          node-version: '22.x'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+          run_install: |
+            - recursive: true
+              args: [--frozen-lockfile]
+            - args: [--global, gulp, prettier, vitest]
+
+      - name: Restore Rust cache
+        uses: actions/cache@v3
+        id: rust-cache
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
 
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
           components: rust-src
+          cache: 'true'
+          cache-directories:
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          rustflags: '-Awarnings'
 
-      - name: Install system dependencies
+
+
+      - name: Add Rust to PATH
+        run: echo "$HOME/.cargo/bin" >> $env:GITHUB_PATH
+
+      - name: Check Cargo installation
+        run: cargo --version
+
+      - name: Install OpenCV dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev build-essential curl wget libssl-dev libgtk-3-dev libayatana-appindicator3-dev
+          choco install -y llvm --version 16.0.6
+          choco install -y opencv
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Verify OpenCV installation
+        run: |
+          ls C:\tools\opencv\build\x64\vc16\bin
+
+      - name: Set environment variables
+        run: |
+          echo "OPENCV_DIR=C:\tools\opencv" >> $env:GITHUB_ENV
+          echo "OPENCV_LIB_DIR=C:\tools\opencv\build\x64\vc16\lib" >> $env:GITHUB_ENV
+          echo "OPENCV_INCLUDE_DIR=C:\tools\opencv\build\include" >> $env:GITHUB_ENV
+          echo "OPENCV_BIN_DIR=C:\tools\opencv\build\x64\vc16\bin" >> $env:GITHUB_ENV
+          echo "OPENCV_LINK_LIBS=jpeg62.dll,liblzma.dll,libpng16.dll,libsharpyuv.dll,libwebp.dll,libwebpdecoder.dll,opencv_core4.dll,opencv_highgui4.dll,opencv_imgcodecs4.dll,opencv_imgproc4.dll,opencv_videoio4.dll,tiff.dll,zlib.dll" >> $env:GITHUB_ENV
+          echo "OPENCV_LINK_PATHS=C:\tools\opencv\build\x64\vc16\lib" >> $env:GITHUB_ENV
+          echo "OPENCV_INCLUDE_PATHS=C:\tools\opencv\build\include" >> $env:GITHUB_ENV
+          echo "PKG_CONFIG_PATH=C:\tools\opencv\lib\pkgconfig" >> $env:GITHUB_ENV
+          echo "VCPKGRS_DYNAMIC=1" >> $env:GITHUB_ENV
+
+      #      - name: vcpkg build
+      #        uses: johnwason/vcpkg-action@v6
+      #        id: vcpkg
+      #        with:
+      #          pkgs: opencv[contrib]
+      #          triplet: x64-windows
+      #          token: ${{ github.token }}
+      #          github-binarycache: true
+
+      #      - name: Configure environment variables
+      #        run: |
+      #          echo "VCPKG_ROOT=C:\Program Files\vcpkg" >> $env:GITHUB_ENV
+      #          echo "OpenCV_DIR=C:\Program Files\vcpkg\installed\x64-windows\share\opencv" >> $env:GITHUB_ENV
+      #          echo "OPENCV_LINK_LIBS=opencv_world460" >> $env:GITHUB_ENV
+      #          echo "OPENCV_LINK_PATHS=C:\Program Files\vcpkg\installed\x64-windows\lib" >> $env:GITHUB_ENV
+      #          echo "OPENCV_INCLUDE_PATHS=C:\Program Files\vcpkg\installed\x64-windows\include" >> $env:GITHUB_ENV
+
+      - name: Add OpenCV DLLs to PATH
+        run: |
+          echo "C:\tools\opencv\build\x64\vc16\bin" >> $env:GITHUB_PATH
+          echo "src-tauri/dll" >> $env:GITHUB_PATH
+
 
       - name: Install project dependencies
         run: pnpm install
 
+      - name: Cache Tauri Build
+        uses: actions/cache@v3
+        with:
+          path: |
+            src-tauri/target/release
+            src-tauri/target/debug
+          key: tauri-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            tauri-${{ runner.os }}-
+
       - name: Build Tauri app
         run: pnpm tauri build --verbose
+#
+#    post: always
+#            - name: Save partial Rust cache
+#            if: ${{ always() }}
+#            uses: actions/cache@v3
+#            with:
+#              path: |
+#                ~/.cargo/registry
+#                ~/.cargo/git
+#                src-tauri/target
+#              key: cargo-${{ runner.os }}-partial-${{ github.run_id }}
+#              restore-keys: |
+#                cargo-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
+#                cargo-${{ runner.os }}-
