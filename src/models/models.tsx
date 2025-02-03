@@ -31,7 +31,7 @@ interface BotData {
 
 interface InnerAppState {
     running: boolean;
-    apiStatus: "inactive" | "ok" | "stopped";
+    apiStatus: "inactive" | "active" | "loading" | "error";
     botData: BotData;
 }
 

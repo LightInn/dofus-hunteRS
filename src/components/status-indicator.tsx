@@ -4,6 +4,7 @@ interface StatusIndicatorProps {
 }
 
 export function StatusIndicator({ label, status }: StatusIndicatorProps) {
+
     const getStatusColor = () => {
         switch (status) {
             case "active":

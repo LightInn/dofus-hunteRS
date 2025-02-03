@@ -84,7 +84,8 @@ pub enum ApiStatus {
     #[default]
     Inactive,
     Active,
-    Stopped,
+    Loading,
+    Error,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]

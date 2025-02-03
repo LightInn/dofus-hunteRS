@@ -77,8 +77,8 @@ export default function HomePage() {
                 }}
             >
                 <div style={{display: "flex", gap: "1rem"}}>
-                    <StatusIndicator label="Running" status={isRunning ? "active" : "inactive"}/>
-                    <StatusIndicator label="API" status={apiStatus}/>
+                    <StatusIndicator label="Running" status={state.running ? 'active' : 'inactive'}/>
+                    <StatusIndicator label="API" status={state.apiStatus}/>
                 </div>
 
                 <div style={{display: "flex", alignItems: "center", gap: "1rem"}}>

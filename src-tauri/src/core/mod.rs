@@ -60,7 +60,11 @@ pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
         x, y, direction, hint
     );
 
-    let response = find_next_location(config.api, x, y, direction, &hint)?.unwrap_or_default();
+    let response = find_next_location(config.api, x, y, direction, &hint).map_err(|e| {
+        state.api_status = crate::models::ApiStatus::Error;
+        app.emit("state_changed", &*state).unwrap();
+        e
+    })?.unwrap_or_default();
 
     state.bot_data.coords.target.x = response.pos_x;
     state.bot_data.coords.target.y = response.pos_y;
