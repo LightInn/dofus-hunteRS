@@ -3,6 +3,7 @@ import {getCurrentWebviewWindow} from "@tauri-apps/api/webviewWindow";
 import {PhysicalSize, PhysicalPosition} from "@tauri-apps/api/dpi";
 import {useState, CSSProperties, useEffect} from "react";
 import useBotState from "../store/BotState.tsx";
+import {invoke} from "@tauri-apps/api/core";
 
 
 // Fonction d'interpolation pour une animation fluide
@@ -43,8 +44,7 @@ async function animateWindow(
 }
 
 
-export default function ArrowSelector()
- {
+export default function ArrowSelector() {
     const arrowState = useBotState((state) => state.botData.currentArrow);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -98,9 +98,10 @@ export default function ArrowSelector()
     async function handleDirectionSelect(newDirection: "up" | "down" | "left" | "right") {
         setSelectedDirection(newDirection);
 
-        // todo : envoyer la nouvelle direction au bot
-        // onDirectionChange?.(newDirection);
-        //
+        invoke('call_set_direction', {direction: newDirection}).then((response) => {
+            console.log(response)
+        })
+
         setIsMenuOpen(false);
 
 

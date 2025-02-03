@@ -1,10 +1,12 @@
+mod eq;
+
 use crate::composent::config::BotConfig;
 
 use serde::Deserialize;
 use std::sync::{Arc, Mutex};
 use thiserror::Error;
 
-#[derive(Default, Debug, Clone, Copy, serde::Serialize)]
+#[derive(Default, Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum ArrowDirection {
     Up,
@@ -98,6 +100,6 @@ pub enum HistoryType {
 #[derive(Debug, Clone, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct HistoryPoint {
-    coords: Coords,
-    history_type: HistoryType,
+    pub coord: Coord,
+    pub history_type: HistoryType,
 }

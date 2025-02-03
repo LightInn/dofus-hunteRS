@@ -12,19 +12,26 @@ export default function HomePage() {
     const state = useBotState((state) => state);
 
     const [isRunning, setIsRunning] = useState(false);
-    const [apiStatus] = useState<"inactive" | "loading" | "active" | "error">("inactive");
     const [hint, setHint] = useState("");
     const [points, setPoints] = useState([
-        {id: "1", isStart: true, x: 0, y: 0},
-        {id: "2", isStart: false, x: 10, y: 20},
+        { coord: { x: 0, y: 0 }, historyType: "normal"}
     ]);
 
     useEffect(() => {
 
         setIsRunning(state.running);
         setHint(state.botData.currentHint);
+        setPoints(state.botData.history);
 
     }, [state]);
+
+
+    function handleSetHint(hint : string){
+        setHint(hint);
+        invoke('call_set_hint', {hint: hint}).then((response) => {
+            console.log(response)
+        })
+    }
 
     function handleLaunch() {
         setIsRunning(!isRunning);
@@ -33,11 +40,11 @@ export default function HomePage() {
         })
     }
 
-    function handleManual(){
-            setIsRunning(!isRunning);
-            invoke('call_manual').then((response) => {
-                console.log(response)
-            })
+    function handleManual() {
+        setIsRunning(!isRunning);
+        invoke('call_manual').then((response) => {
+            console.log(response)
+        })
     }
 
 
@@ -77,18 +84,18 @@ export default function HomePage() {
                 }}
             >
                 <div style={{display: "flex", gap: "1rem"}}>
-                    <StatusIndicator label="Running" status={state.running ? 'active' : 'inactive'}/>
+                    <StatusIndicator label="Running" status={isRunning ? 'active' : 'inactive'}/>
                     <StatusIndicator label="API" status={state.apiStatus}/>
                 </div>
 
                 <div style={{display: "flex", alignItems: "center", gap: "1rem"}}>
-                    <CoordinateInput onReload={() => console.log("Reloading coordinates...")}/>
+                    <CoordinateInput />
                     <ArrowSelector/>
                 </div>
 
                 <input
                     value={hint}
-                    onChange={(e) => setHint(e.target.value)}
+                    onChange={(e) => handleSetHint(e.target.value)}
                     placeholder="Current hint..."
                     style={{
                         padding: "0.5rem",
@@ -99,7 +106,14 @@ export default function HomePage() {
                 />
 
                 <div style={{display: "flex", gap: "0.5rem"}}>
-                    <button onClick={() => handleLaunch()}>
+                    <button onClick={() => handleLaunch()} style={{
+                        padding: "0.5rem",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        border: "black",
+                        backgroundColor: "black",
+                        color: "white"
+                    }}>
                         {isRunning ? "Stop" : "Start"}
                     </button>
                     <button>Setup</button>

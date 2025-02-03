@@ -1,7 +1,7 @@
 use tauri::{AppHandle, Emitter, State};
 use crate::composent::arrows::detect_arrow_direction;
 use crate::composent::screenshot::capture_region;
-use crate::models::{AppState, ScreenRegion};
+use crate::models::{AppState, ArrowDirection, ScreenRegion};
 
 use super::error::Result;
 
@@ -19,6 +19,20 @@ pub fn call_arrow_direction(state: State<'_, AppState>, app: AppHandle) -> Resul
 
     app.emit("state_changed", &*state).unwrap();
 
+
+    println!("Direction: {:?}", direction);
+
+    Ok(())
+}
+
+
+#[tauri::command]
+pub fn call_set_direction( direction : ArrowDirection ,  state: State<'_, AppState>, app: AppHandle) -> Result<()> {
+    let mut state = state.inner.lock().unwrap();
+
+    state.bot_data.current_arrow = direction;
+
+    app.emit("state_changed", &*state).unwrap();
 
     println!("Direction: {:?}", direction);
 

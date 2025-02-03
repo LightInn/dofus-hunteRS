@@ -32,6 +32,8 @@ pub enum ApiError {
     InvalidHeader(String),
     #[error("JSON error: {0}")]
     JsonError(#[from] serde_json::Error),
+    #[error("Data Not found: {0}")]
+    DataNotFound(String),
 }
 
 #[derive(Debug, Error)]

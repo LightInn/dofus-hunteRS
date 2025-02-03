@@ -75,8 +75,9 @@ export default function SettingsPage() {
 
             <div className="settings-section">
                 <h3>Window Settings</h3>
-                <label>
+                <label style={{display: 'block'}}>
                     Window Title:
+
                     <input
                         type="text"
                         value={config.window.title}
@@ -84,12 +85,37 @@ export default function SettingsPage() {
                     />
                 </label>
 
-                <label>
+
+                <label style={{display: 'block'}}>
                     Focus Chat Binding:
+
                     <input
                         type="text"
                         value={config.window.focus_chat_binding}
                         onChange={(e) => updateConfig('window', 'focus_chat_binding', e.target.value)}
+                    />
+                </label>
+            </div>
+
+
+            <div className="settings-section">
+                <h3>API Settings</h3>
+                <label style={{display: 'block'}}>
+                    API url
+                    <input
+                        type="text"
+                        value={config.api.url}
+                        onChange={(e) => updateConfig('api', 'url', e.target.value)}
+                    />
+                </label>
+
+
+                <label style={{display: 'block'}}>
+                    API Token
+                    <input
+                        type="text"
+                        value={config.api.token}
+                        onChange={(e) => updateConfig('api', 'token', e.target.value)}
                     />
                 </label>
             </div>

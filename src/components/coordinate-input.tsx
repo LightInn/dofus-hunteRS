@@ -3,12 +3,7 @@ import {useEffect, useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
 import useBotState from "../store/BotState.tsx";
 
-interface CoordinateInputProps {
-    onReload?: () => void;
-    onChange?: (x: number, y: number) => void;
-}
-
-export function CoordinateInput({onChange}: CoordinateInputProps) {
+export function CoordinateInput() {
 
     const stateCoordinates = useBotState((state) => state.botData.coords.current);
     const [coordinates, setCoordinates] = useState({x: 0, y: 0});
@@ -25,7 +20,11 @@ export function CoordinateInput({onChange}: CoordinateInputProps) {
             [axis]: Number.parseInt(value) || 0,
         };
         setCoordinates(newCoordinates);
-        onChange?.(newCoordinates.x, newCoordinates.y);
+
+        invoke('call_set_coord', {x: newCoordinates.x, y: newCoordinates.y}
+        ).then((response) => {
+            console.log(response)
+        })
     };
 
 
@@ -40,16 +39,14 @@ export function CoordinateInput({onChange}: CoordinateInputProps) {
         <div style={{display: "flex", alignItems: "center", gap: "1rem"}}>
             <div style={{display: "flex", gap: "0.5rem"}}>
                 <div style={{width: "4em", display: "flex", alignItems: "center", justifyContent: "space-between"}}>
-                    <div>
-                        X
-                    </div>
+
                     <input
                         type="number"
                         value={coordinates.x}
                         onChange={(e) => handleChange("x", e.target.value)}
                         placeholder="X"
                         style={{
-                            width: "40%",
+                            width: "80%",
                             padding: "0.5rem",
                             border: "1px solid #ccc",
                             borderRadius: "4px",
@@ -57,16 +54,14 @@ export function CoordinateInput({onChange}: CoordinateInputProps) {
                     />
                 </div>
                 <div style={{width: "4em", display: "flex", alignItems: "center", justifyContent: "space-between"}}>
-                    <div>
-                        Y
-                    </div>
+
                     <input
                         type="number"
                         value={coordinates.y}
                         onChange={(e) => handleChange("y", e.target.value)}
                         placeholder="Y"
                         style={{
-                            width: "40%",
+                            width: "80%",
                             padding: "0.5rem",
                             border: "1px solid #ccc",
                             borderRadius: "4px",

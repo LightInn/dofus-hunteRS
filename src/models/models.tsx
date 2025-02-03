@@ -17,7 +17,7 @@ interface Steps {
 
 interface HistoryPoint {
     coord: Coord;
-    history_type: "start" | "normal";
+    historyType: "start" | "normal";
 }
 
 interface BotData {
@@ -36,4 +36,4 @@ interface InnerAppState {
 }
 
 
-export type {InnerAppState, Coord, Coords, Steps, BotData};
+export type {InnerAppState, Coord, Coords, Steps, BotData, HistoryPoint};
