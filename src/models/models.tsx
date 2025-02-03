@@ -15,17 +15,25 @@ interface Steps {
     total: number;
 }
 
+interface HistoryPoint {
+    coord: Coord;
+    history_type: "start" | "normal";
+}
+
 interface BotData {
     steps: Steps;
     coords: Coords;
     currentHint: string;
-    currentArrow: string; // Ou un enum si vous préférez
+    currentArrow: "up" | "down" | "left" | "right" | "unknown";
+    history: HistoryPoint[];
 }
+
 
 interface InnerAppState {
     running: boolean;
+    apiStatus: "inactive" | "ok" | "stopped";
     botData: BotData;
 }
 
 
-export type { InnerAppState, Coord, Coords, Steps, BotData };
+export type {InnerAppState, Coord, Coords, Steps, BotData};

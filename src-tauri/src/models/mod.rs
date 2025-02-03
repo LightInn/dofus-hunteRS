@@ -1,7 +1,7 @@
 use crate::composent::config::BotConfig;
 
-use std::sync::{Arc, Mutex};
 use serde::Deserialize;
+use std::sync::{Arc, Mutex};
 use thiserror::Error;
 
 #[derive(Default, Debug, Clone, Copy, serde::Serialize)]
@@ -24,6 +24,7 @@ pub struct AppState {
 #[serde(rename_all = "camelCase")]
 pub struct InnerAppState {
     pub running: bool,
+    pub api_status: ApiStatus,
     pub bot_data: BotData,
     pub config: BotConfig,
 }
@@ -35,6 +36,7 @@ pub struct BotData {
     pub coords: Coords,
     pub current_hint: String,
     pub current_arrow: ArrowDirection,
+    pub history: Vec<HistoryPoint>,
 }
 
 #[derive(Default, Debug, Clone, Copy, serde::Serialize)]
@@ -59,23 +61,42 @@ pub struct Coords {
     pub target: Coord,
 }
 
-
-
 #[derive(Deserialize)]
 pub struct RegionCoordinates {
     pub(crate) region: String,
     pub(crate) coordinates: [i32; 4],
 }
 
-
 /// Représente une région de l'écran avec des coordonnées (x, y, width, height)
 pub type ScreenRegion = (i32, i32, i32, i32);
 
-
 // api models
 #[derive(Debug, Deserialize, Default)]
-pub struct LocationData {
+pub struct ApiData {
     pub pos_x: i8,
     pub pos_y: i8,
     pub distance: u8,
+}
+
+#[derive(Debug, Clone, serde::Serialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub enum ApiStatus {
+    #[default]
+    Inactive,
+    Active,
+    Stopped,
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum HistoryType {
+    Start,
+    Normal,
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HistoryPoint {
+    coords: Coords,
+    history_type: HistoryType,
 }
