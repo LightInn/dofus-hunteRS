@@ -26,7 +26,7 @@ const useBotState = create<InnerAppState & Action>((set) => ({
             },
         },
         currentHint: "",
-        currentArrow: ""
+        currentArrow: "unknown"
     },
     running: false,
 
