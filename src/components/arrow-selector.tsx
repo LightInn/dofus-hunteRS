@@ -1,7 +1,8 @@
-import {ArrowDown, ArrowLeft, ArrowRight, ArrowUp} from "lucide-react";
+import {ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CircleIcon} from "lucide-react";
 import {getCurrentWebviewWindow} from "@tauri-apps/api/webviewWindow";
 import {PhysicalSize, PhysicalPosition} from "@tauri-apps/api/dpi";
-import {useState, CSSProperties} from "react";
+import {useState, CSSProperties, useEffect} from "react";
+import useBotState from "../store/BotState.tsx";
 
 
 // Fonction d'interpolation pour une animation fluide
@@ -42,17 +43,24 @@ async function animateWindow(
 }
 
 
-export default function ArrowSelector({direction, onDirectionChange}: {
-    direction: "up" | "down" | "left" | "right";
-    onDirectionChange?: (newDirection: "up" | "down" | "left" | "right") => void;
-}) {
+export default function ArrowSelector()
+ {
+    const arrowState = useBotState((state) => state.botData.currentArrow);
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isOverlayOpen, setIsOverlayOpen] = useState(false);
     const [originalSize, setOriginalSize] = useState<PhysicalSize | null>(null);
     const [originalPosition, setOriginalPosition] = useState<PhysicalPosition | null>(null);
-    const [selectedDirection, setSelectedDirection] = useState(direction);
+    const [selectedDirection, setSelectedDirection] = useState(arrowState);
+
 
     const SMALL_SIZE = 300;
+
+
+    useEffect(() => {
+        setSelectedDirection(arrowState);
+    }, [arrowState]);
+
 
     async function handleMouseDown(e: React.MouseEvent) {
         e.preventDefault();
@@ -89,8 +97,10 @@ export default function ArrowSelector({direction, onDirectionChange}: {
 
     async function handleDirectionSelect(newDirection: "up" | "down" | "left" | "right") {
         setSelectedDirection(newDirection);
-        onDirectionChange?.(newDirection);
 
+        // todo : envoyer la nouvelle direction au bot
+        // onDirectionChange?.(newDirection);
+        //
         setIsMenuOpen(false);
 
 
@@ -111,7 +121,7 @@ export default function ArrowSelector({direction, onDirectionChange}: {
 
     }
 
-    const getDirectionIcon = (dir: "up" | "down" | "left" | "right") => {
+    const getDirectionIcon = (dir: typeof arrowState) => {
         const iconStyle: CSSProperties = {
             height: '1.5rem',
             width: '1.5rem',
@@ -120,7 +130,8 @@ export default function ArrowSelector({direction, onDirectionChange}: {
             up: <ArrowUp style={iconStyle}/>,
             down: <ArrowDown style={iconStyle}/>,
             left: <ArrowLeft style={iconStyle}/>,
-            right: <ArrowRight style={iconStyle}/>
+            right: <ArrowRight style={iconStyle}/>,
+            unknown: <CircleIcon style={iconStyle}/>
         };
         return icons[dir];
     };
@@ -166,7 +177,7 @@ export default function ArrowSelector({direction, onDirectionChange}: {
         zIndex: 30,
     };
 
-    const getRadialButtonStyle = (dir: typeof direction): CSSProperties => {
+    const getRadialButtonStyle = (dir: typeof arrowState): CSSProperties => {
         const baseStyle: CSSProperties = {
             position: 'absolute',
             width: '56px',
@@ -187,21 +198,25 @@ export default function ArrowSelector({direction, onDirectionChange}: {
 
         // Position les boutons par rapport au centre de la fenêtre redimensionnée
         const positions = {
-            up: {
+            "up": {
                 top: `${SMALL_SIZE / 2 - 92}px`,
                 left: `${SMALL_SIZE / 2 - 28}px`
             },
-            down: {
+            "down": {
                 top: `${SMALL_SIZE / 2 + 36}px`,
                 left: `${SMALL_SIZE / 2 - 28}px`
             },
-            left: {
+            "left": {
                 top: `${SMALL_SIZE / 2 - 28}px`,
                 left: `${SMALL_SIZE / 2 - 92}px`
             },
-            right: {
+            "right": {
                 top: `${SMALL_SIZE / 2 - 28}px`,
                 left: `${SMALL_SIZE / 2 + 36}px`
+            },
+            "unknown": {
+                top: `${SMALL_SIZE / 2 - 28}px`,
+                left: `${SMALL_SIZE / 2 - 28}px`
             }
         };
 

@@ -2,19 +2,44 @@ import {Settings, LucideBug} from "lucide-react";
 import {StatusIndicator} from "../components/status-indicator";
 import {CoordinateInput} from "../components/coordinate-input";
 import {HistoryList} from "../components/history-list";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import ArrowSelector from "../components/arrow-selector.tsx";
+import useBotState from "../store/BotState.tsx";
+import {invoke} from "@tauri-apps/api/core";
 
 export default function HomePage() {
+    const state = useBotState((state) => state);
+
     const [isRunning, setIsRunning] = useState(false);
     const [apiStatus] = useState<"inactive" | "loading" | "active" | "error">("inactive");
-    const [direction] = useState<"up" | "down" | "left" | "right">("up");
     const [hint, setHint] = useState("");
     const [points, setPoints] = useState([
         {id: "1", isStart: true, x: 0, y: 0},
         {id: "2", isStart: false, x: 10, y: 20},
     ]);
+
+    useEffect(() => {
+
+        setIsRunning(state.running);
+        setHint(state.botData.currentHint);
+
+    }, [state]);
+
+    function handleLaunch() {
+        setIsRunning(!isRunning);
+        invoke('call_python').then((response) => {
+            console.log(response)
+        })
+    }
+
+    function handleManual(){
+            setIsRunning(!isRunning);
+            invoke('call_manual').then((response) => {
+                console.log(response)
+            })
+    }
+
 
     return (
         <div
@@ -58,7 +83,7 @@ export default function HomePage() {
 
                 <div style={{display: "flex", alignItems: "center", gap: "1rem"}}>
                     <CoordinateInput onReload={() => console.log("Reloading coordinates...")}/>
-                    <ArrowSelector direction={direction}/>
+                    <ArrowSelector/>
                 </div>
 
                 <input
@@ -74,11 +99,12 @@ export default function HomePage() {
                 />
 
                 <div style={{display: "flex", gap: "0.5rem"}}>
-                    <button onClick={() => setIsRunning(!isRunning)}>
+                    <button onClick={() => handleLaunch()}>
                         {isRunning ? "Stop" : "Start"}
                     </button>
                     <button>Setup</button>
                     <button>New</button>
+                    <button onClick={() => handleManual()}>Manual</button>
                 </div>
 
                 <HistoryList
