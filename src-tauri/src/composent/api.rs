@@ -5,7 +5,7 @@ use reqwest::{
 };
 use std::time::Duration;
 use crate::core::error::ApiError;
-use crate::models::{LocationData};
+use crate::models::{ApiData};
 use super::config::ApiConfig;
 
 
@@ -30,7 +30,7 @@ pub fn find_next_location(
     y: i32,
     direction: &str,
     hint: &str,
-) -> Result<Option<LocationData>, ApiError> {
+) -> Result<Option<ApiData>, ApiError> {
     let url = format!("{}/api/treasure-hunt", config.url);
     let headers = get_headers(config)?;
 
@@ -58,7 +58,7 @@ pub fn find_next_location(
     let response = response.error_for_status()?;
 
     // Désérialisation de la réponse
-    let locations: Vec<LocationData> = response.json()?;
+    let locations: Vec<ApiData> = response.json()?;
     println!("Locations: {:?}", locations);
     Ok(locations.into_iter().next())
 }
