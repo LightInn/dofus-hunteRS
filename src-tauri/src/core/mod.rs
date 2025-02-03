@@ -10,9 +10,9 @@ use crate::composent::ocr::{ocr_coordinates, ocr_hunt_panel};
 use crate::composent::screenshot::capture_region;
 use crate::composent::window::WindowManager;
 use crate::models::{AppState, ArrowDirection, Coord, HistoryPoint, HistoryType, ScreenRegion};
+use error::Result;
 use std::cmp::PartialEq;
 use std::panic;
-use error::Result;
 
 use crate::core::error::ApiError;
 use serde::Deserialize;
@@ -27,7 +27,7 @@ pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
     let imageHuntPanel = capture_region(state.config.regions.hunt_panel.into())?;
     let imageCoordinates = capture_region(state.config.regions.coordinates.into())?;
 
-    let infos = ocr_hunt_panel(&imageHuntPanel)?;
+    let infos = ocr_hunt_panel(&imageHuntPanel, state.config.api.clone())?;
 
     state.bot_data.coords.start = Coord {
         x: infos.start_x,
@@ -51,8 +51,19 @@ pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
     state.bot_data.current_arrow = direction;
     println!("Direction: {:?}", state.bot_data.current_arrow);
 
-    let x = state.bot_data.coords.current.x as i32;
-    let y = state.bot_data.coords.current.y as i32;
+    let is_start = state.bot_data.coords.target == state.bot_data.coords.start;
+
+    let x = (if is_start {
+        state.bot_data.coords.current.x
+    } else {
+        state.bot_data.coords.start.x
+    }) as i32;
+    let y = (if is_start {
+        state.bot_data.coords.current.y
+    } else {
+        state.bot_data.coords.start.y
+    }) as i32;
+
     let direction = match state.bot_data.current_arrow {
         ArrowDirection::Up => "up",
         ArrowDirection::Down => "down",
@@ -68,14 +79,11 @@ pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
         x, y, direction, hint
     );
 
-    let response = find_next_location(config.api, x, y, direction, &hint)
-        .map_err(|e| {
-            state.api_status = crate::models::ApiStatus::Error;
-            app.emit("state_changed", &*state).unwrap();
-            e
-        })?;
-
-
+    let response = find_next_location(config.api, x, y, direction, &hint).map_err(|e| {
+        state.api_status = crate::models::ApiStatus::Error;
+        app.emit("state_changed", &*state).unwrap();
+        e
+    })?;
 
     if response.is_none() {
         state.api_status = crate::models::ApiStatus::Error;

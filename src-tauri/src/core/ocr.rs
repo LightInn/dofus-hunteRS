@@ -32,7 +32,7 @@ pub fn call_capture_analyse(state: State<'_, AppState>, app: AppHandle) -> Resul
 
     let image = capture_region(region)?;
 
-    let infos = ocr_hunt_panel(&image)?;
+    let infos = ocr_hunt_panel(&image, state.config.api.clone())?;
 
     state.bot_data.coords.start = Coord {
         x: infos.start_x,

@@ -1,9 +1,11 @@
+use crate::composent::config::ApiConfig;
 use crate::core::error::Error;
 use crate::core::error::Result;
+use crate::ocr::ocr;
+use fuzzy_matcher::skim::SkimMatcherV2;
+use fuzzy_matcher::FuzzyMatcher;
 use image::{DynamicImage, GrayImage, Luma};
 use regex::Regex;
-
-use crate::ocr::ocr;
 
 #[derive(Debug)]
 pub struct HuntPanelInfos {
@@ -15,7 +17,7 @@ pub struct HuntPanelInfos {
     pub attempts_remaining: u8,
 }
 
-fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
+fn parse_hunt_panel_text(text: Vec<String>, config: ApiConfig) -> HuntPanelInfos {
     let mut infos = HuntPanelInfos {
         step_current: 0,
         step_total: 0,
@@ -28,10 +30,10 @@ fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
     let step_re = Regex::new(r"STEP:\s*(\d+)/(\d+)").unwrap();
     let coord_re = Regex::new(r"(-?\d+),(-?\d+)").unwrap();
     let attempts_re = Regex::new(r"(\d+)\s*attempts remaining").unwrap();
-    let mut hint_candidate = None;
+
     let mut hint_validated = None;
 
-    for (i, line) in text.iter().enumerate() {
+    for (_i, line) in text.iter().enumerate() {
         // Extraction des étapes
         if let Some(caps) = step_re.captures(line) {
             infos.step_current = caps[1].parse().unwrap_or(0);
@@ -41,7 +43,13 @@ fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
         else if let Some(caps) = coord_re.captures(line) {
             infos.start_x = caps[1].parse().unwrap_or(0);
             // if the first char is "-", then we need to take 3 chars
-            if caps[2].as_bytes().first().map(|&c| c as char).unwrap_or('0') == '-' {
+            if caps[2]
+                .as_bytes()
+                .first()
+                .map(|&c| c as char)
+                .unwrap_or('0')
+                == '-'
+            {
                 infos.start_y = caps[2]
                     .chars()
                     .take(3)
@@ -61,45 +69,19 @@ fn parse_hunt_panel_text(text: Vec<String>) -> HuntPanelInfos {
         else if let Some(caps) = attempts_re.captures(line) {
             infos.attempts_remaining = caps[1].parse().unwrap_or(0);
         }
-
-        // Détection de l'indice avant CONFIRM/attempts
-        if line.contains("CONFIRM") {
-            hint_validated = hint_candidate;
-        }
-
-        // si len > 2  +  at least 2 words  + tout n'est pas en majuscule (sauf espace) + un seul chiffre max + pas de parenthèse alors c'est un indice potentiel
-        if line.len() > 3
-            // && line.split_whitespace().count() >= 2
-            && !line.chars().all(|c| c.is_uppercase() || c.is_whitespace())
-            && line.chars().filter(|c| c.is_digit(10)).count() <= 1
-            && !line.contains("(")
-            && !line.contains("attempts")
-            && !line.contains("STEP")
-        {
-            hint_candidate = Some(line.as_str());
-        }
     }
+
+    let indices = crate::composent::api::get_hints_from_api(config).unwrap();
+    let results = ocr_order_fuzzy_search(&text, &indices);
+    println!("Indices trouvés : {:?}", results);
+
+    // hint_validated is last hint in results
+    hint_validated = results.last().map(|s| s.to_string());
 
     // Traitement de l'indice
     if let Some(hint) = hint_validated {
         // on supprime le premier caractère
-
-        infos.current_hint = hint
-            .chars()
-            .skip(1) // Supprime le premier caractère
-            .collect::<String>()
-            .trim_start() // Supprime les espaces initiaux restants
-            .to_string();
-
-        // on supprimes les mots entiers lorsqu'ils sont en majuscule
-        let mut hint_words = infos.current_hint.split_whitespace().collect::<Vec<&str>>();
-        let mut hint_words_filtered = Vec::new();
-        for word in hint_words.iter() {
-            if !word.chars().all(|c| c.is_uppercase()) {
-                hint_words_filtered.push(*word);
-            }
-        }
-        infos.current_hint = hint_words_filtered.join(" ");
+        infos.current_hint = hint.to_string();
     }
 
     infos
@@ -119,12 +101,12 @@ fn parse_coordinates(text: Vec<String>) -> Result<Option<(i8, i8)>> {
     Ok(None) // Aucun match trouvé
 }
 
-pub fn ocr_hunt_panel(image: &DynamicImage) -> Result<HuntPanelInfos> {
+pub fn ocr_hunt_panel(image: &DynamicImage, config: ApiConfig) -> Result<HuntPanelInfos> {
     let extracted_text = ocr(image)?;
 
     println!("{:?}", extracted_text);
 
-    let infos = parse_hunt_panel_text(extracted_text.clone());
+    let infos = parse_hunt_panel_text(extracted_text.clone(), config);
 
     println!("{:?}", infos);
     Ok(infos)
@@ -140,7 +122,7 @@ pub fn ocr_coordinates(image: &DynamicImage) -> Result<Option<(i8, i8)>> {
 
     // println!("{:?}", extracted_text);
     let parsed_coordinates = parse_coordinates(extracted_text.clone());
-    println!("{:?}", parsed_coordinates);
+    println!("parse coord {:?}", parsed_coordinates);
 
     // let infos = parse_hunt_panel_text(extracted_text.clone());
     //
@@ -169,4 +151,58 @@ fn binarize_dynamic_image(img: &DynamicImage, threshold: u8) -> DynamicImage {
     }
 
     DynamicImage::ImageLuma8(binary_img) // Convertir de GrayImage en DynamicImage
+}
+
+fn ocr_order_fuzzy_search(ocr_text: &Vec<String>, indices: &Vec<String>) -> Vec<String> {
+    let matcher = SkimMatcherV2::default();
+    let mut matched_indices = Vec::new();
+    let mut available_indices = indices.clone();
+
+    // Convertir les éléments OCR en une séquence de mots
+    let ocr_words: Vec<String> = ocr_text
+        .iter()
+        .map(|text| text.trim().replace("\"", ""))
+        .filter(|text| !text.is_empty())
+        .collect::<Vec<_>>()
+        .iter()
+        .flat_map(|s| s.split_whitespace().map(|w| w.to_string()))
+        .collect();
+
+    // Parcourir les mots OCR dans leur ordre original
+    let mut current_phrase = String::new();
+    for (index, word) in ocr_words.iter().enumerate() {
+        current_phrase.push_str(word);
+        current_phrase.push(' ');
+
+        // Vérifier les indices disponibles
+        let best_match = available_indices
+            .iter()
+            .filter_map(|idx| {
+                matcher
+                    .fuzzy_match(&current_phrase, idx)
+                    .map(|score| (idx.clone(), score))
+            })
+            .max_by_key(|&(_, score)| score);
+
+        // Si un match satisfaisant est trouvé
+        if let Some((best_index, score)) = best_match {
+            if score > 50 {
+                // Seuil de correspondance
+                matched_indices.push(best_index.clone());
+                available_indices.retain(|i| *i != best_index);
+                current_phrase = String::new(); // Réinitialiser la phrase courante
+            }
+        }
+
+        // Limiter la longueur de la phrase courante pour éviter des matchs trop larges
+        if current_phrase.split_whitespace().count() > 5 {
+            current_phrase = current_phrase
+                .split_whitespace()
+                .skip(1)
+                .collect::<Vec<&str>>()
+                .join(" ");
+        }
+    }
+
+    matched_indices
 }
