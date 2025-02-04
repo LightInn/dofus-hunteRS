@@ -158,6 +158,8 @@ fn ocr_order_fuzzy_search(ocr_text: &Vec<String>, indices: &Vec<String>) -> Vec<
     let mut matched_indices = Vec::new();
     let mut available_indices = indices.clone();
     available_indices.push("Drheller".to_string());
+    let mut first_open = true;
+    let mut first_close = true;
 
     let cleaned_text = ocr_text
         .iter()
@@ -166,6 +168,22 @@ fn ocr_order_fuzzy_search(ocr_text: &Vec<String>, indices: &Vec<String>) -> Vec<
                 .replace("\"", "")
                 .replace("?", "")
                 .replace("*", "")
+        })
+        .map(|text| {
+            if first_close && text.contains(")") {
+                first_close = false;
+                return "".to_string();
+            } else {
+                text
+            }
+        })
+        .map(|text| {
+            if first_open && text.contains("(") {
+                first_open = false;
+                return "".to_string();
+            } else {
+                text
+            }
         })
         .filter(|text| !text.is_empty())
         .collect::<Vec<String>>();
