@@ -20,7 +20,7 @@ use tauri::{AppHandle, State};
 use tauri::{Emitter, Manager};
 
 #[tauri::command]
-pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
+pub fn call_python( start : bool ,state: State<'_, AppState>, app: AppHandle) -> Result<()> {
     let mut state = state.inner.lock().unwrap();
     let config = state.config.clone();
 
@@ -51,14 +51,14 @@ pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
     state.bot_data.current_arrow = direction;
     println!("Direction: {:?}", state.bot_data.current_arrow);
 
-    let is_start = state.bot_data.coords.target == state.bot_data.coords.start;
 
-    let x = (if is_start {
+
+    let x = (if start {
         state.bot_data.coords.start.x
     } else {
         state.bot_data.coords.current.x
     }) as i32;
-    let y = (if is_start {
+    let y = (if start {
         state.bot_data.coords.start.y
     } else {
         state.bot_data.coords.current.y
@@ -94,7 +94,7 @@ pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
     let api_data = response.unwrap();
 
     let history_type_entry: HistoryType =
-        if state.bot_data.coords.target == state.bot_data.coords.start {
+        if start {
             HistoryType::Start
         } else {
             HistoryType::Normal
@@ -113,6 +113,8 @@ pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
     state.bot_data.coords.target.x = api_data.pos_x;
     state.bot_data.coords.target.y = api_data.pos_y;
 
+    app.emit("state_changed", &*state).unwrap();
+
     let mut window_manager = WindowManager::new();
 
     window_manager.find_window("Latte").unwrap();
@@ -121,7 +123,7 @@ pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
         .send_travel_command(api_data.pos_x, api_data.pos_y)
         .unwrap();
 
-    app.emit("state_changed", &*state).unwrap();
+
 
     Ok(())
 }
@@ -176,6 +178,8 @@ pub fn call_manual(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
     state.bot_data.coords.target.x = response.pos_x;
     state.bot_data.coords.target.y = response.pos_y;
 
+    app.emit("state_changed", &*state).unwrap();
+
     let mut window_manager = WindowManager::new();
 
     window_manager.find_window("Latte").unwrap();
@@ -184,7 +188,9 @@ pub fn call_manual(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
         .send_travel_command(response.pos_x, response.pos_y)
         .unwrap();
 
-    app.emit("state_changed", &*state).unwrap();
+
 
     Ok(())
 }
+
+

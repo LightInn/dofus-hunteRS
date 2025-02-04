@@ -14,7 +14,7 @@ export default function HomePage() {
     const [isRunning, setIsRunning] = useState(false);
     const [hint, setHint] = useState("");
     const [points, setPoints] = useState([
-        { coord: { x: 0, y: 0 }, historyType: "normal"}
+        {coord: {x: 0, y: 0}, historyType: "normal"}
     ]);
 
     useEffect(() => {
@@ -26,7 +26,7 @@ export default function HomePage() {
     }, [state]);
 
 
-    function handleSetHint(hint : string){
+    function handleSetHint(hint: string) {
         setHint(hint);
         invoke('call_set_hint', {hint: hint}).then((response) => {
             console.log(response)
@@ -35,7 +35,14 @@ export default function HomePage() {
 
     function handleLaunch() {
         setIsRunning(!isRunning);
-        invoke('call_python').then((response) => {
+        invoke('call_python', {start: false}).then((response) => {
+            console.log(response)
+        })
+    }
+
+    function handleSetup() {
+        setIsRunning(!isRunning);
+        invoke('call_python', {start: true}).then((response) => {
             console.log(response)
         })
     }
@@ -89,7 +96,7 @@ export default function HomePage() {
                 </div>
 
                 <div style={{display: "flex", alignItems: "center", gap: "1rem"}}>
-                    <CoordinateInput />
+                    <CoordinateInput/>
                     <ArrowSelector/>
                 </div>
 
@@ -116,7 +123,10 @@ export default function HomePage() {
                     }}>
                         {isRunning ? "Stop" : "Start"}
                     </button>
-                    <button>Setup</button>
+                    <button
+                        onClick={() => handleSetup()}>
+                        Setup
+                    </button>
                     <button>New</button>
                     <button onClick={() => handleManual()}>Manual</button>
                 </div>
