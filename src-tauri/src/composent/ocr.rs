@@ -6,6 +6,7 @@ use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
 use image::{DynamicImage, GrayImage, Luma};
 use regex::Regex;
+use strsim::{jaro_winkler, levenshtein};
 
 #[derive(Debug)]
 pub struct HuntPanelInfos {
@@ -154,55 +155,131 @@ fn binarize_dynamic_image(img: &DynamicImage, threshold: u8) -> DynamicImage {
 }
 
 fn ocr_order_fuzzy_search(ocr_text: &Vec<String>, indices: &Vec<String>) -> Vec<String> {
-    let matcher = SkimMatcherV2::default();
     let mut matched_indices = Vec::new();
     let mut available_indices = indices.clone();
+    available_indices.push("Drheller".to_string());
+
+    let cleaned_text = ocr_text
+        .iter()
+        .map(|text| {
+            text.trim()
+                .replace("\"", "")
+                .replace("?", "")
+                .replace("*", "")
+        })
+        .filter(|text| !text.is_empty())
+        .collect::<Vec<String>>();
+
+
+    let cleaned_text = cleaned_text
+        .iter()
+        .map(|s| {
+            let mut words = s.split_whitespace().collect::<Vec<&str>>();
+            // keep only words with alphabetic characters
+            words.retain(|word| word.to_string().chars().all(char::is_alphabetic));
+            // keep only words with lowercase characters
+            words.retain(|word| !word.chars().all(char::is_uppercase));
+            words.join(" ")
+        })
+        .collect::<Vec<String>>();
 
     // Convertir les éléments OCR en une séquence de mots
-    let ocr_words: Vec<String> = ocr_text
+    let mut ocr_words: Vec<String> = cleaned_text
         .iter()
-        .map(|text| text.trim().replace("\"", ""))
-        .filter(|text| !text.is_empty())
-        .collect::<Vec<_>>()
-        .iter()
-        .flat_map(|s| s.split_whitespace().map(|w| w.to_string()))
+        .flat_map(|text| text.split_whitespace())
+        .map(|word| word.to_string())
         .collect();
 
+    if ocr_words.len() > 3 {
+        ocr_words = ocr_words.split_off(1);
+    }
+
+    // println!("ocr_words: {:?}", ocr_words);
+
     // Parcourir les mots OCR dans leur ordre original
+    let mut analyze_words = ocr_words.clone();
     let mut current_phrase = String::new();
-    for (index, word) in ocr_words.iter().enumerate() {
-        current_phrase.push_str(word);
-        current_phrase.push(' ');
+    let mut not_finished = true;
 
-        // Vérifier les indices disponibles
-        let best_match = available_indices
-            .iter()
-            .filter_map(|idx| {
-                matcher
-                    .fuzzy_match(&current_phrase, idx)
-                    .map(|score| (idx.clone(), score))
-            })
-            .max_by_key(|&(_, score)| score);
+    while not_finished {
+        let cloned_analyze_words = analyze_words.clone();
+        let mut adjust = 0;
 
-        // Si un match satisfaisant est trouvé
-        if let Some((best_index, score)) = best_match {
-            if score > 50 {
+        for (index, word) in cloned_analyze_words.iter().enumerate() {
+            current_phrase.push_str(word);
+            current_phrase.push(' ');
+
+            // println!("current_phrase: {:?}", current_phrase);
+
+            let best_match = best_match(&current_phrase, &available_indices, 12, 0.85);
+
+            // Si un match satisfaisant est trouvé
+            if let Some((best_index)) = best_match {
                 // Seuil de correspondance
                 matched_indices.push(best_index.clone());
-                available_indices.retain(|i| *i != best_index);
+                // available_indices.retain(|i| *i != best_index);
                 current_phrase = String::new(); // Réinitialiser la phrase courante
+                analyze_words = analyze_words.split_off(index + 1 - adjust);
+                // println!("analyze_words: {:?}", analyze_words);
+                adjust = index + 1;
             }
-        }
+            // Limiter la longueur de la phrase courante pour éviter des matchs trop larges
+            if current_phrase.split_whitespace().count() > 5 {
+                // println!("Tronc");
+                // remove first word of
+                analyze_words = analyze_words.split_off(1);
+                current_phrase = String::new();
 
-        // Limiter la longueur de la phrase courante pour éviter des matchs trop larges
-        if current_phrase.split_whitespace().count() > 5 {
-            current_phrase = current_phrase
-                .split_whitespace()
-                .skip(1)
-                .collect::<Vec<&str>>()
-                .join(" ");
+                if analyze_words.len() == 0 {
+                    not_finished = false;
+                }
+                break;
+            }
+            if index == ocr_words.len() - 1 {
+                not_finished = false;
+            }
         }
     }
 
     matched_indices
+}
+
+fn best_match<'a>(
+    query: &'a str,
+    texts: &'a [String],
+    lev_threshold: usize,
+    jaro_threshold: f64,
+) -> Option<&'a String> {
+    if query.len() <= 20 {
+        texts
+            .iter()
+            .map(|text| (text, jaro_winkler(query, text)))
+            .filter(|&(_, score)| {
+                if score >= jaro_threshold {
+                    // println!("score: {:?}", score);
+                }
+                score >= jaro_threshold
+            }) // On garde les scores élevés
+            .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap()) // On prend le meilleur
+            // check if the best match have the same number of words as the query
+            .filter(|&(best_match, _)| {
+                let query_words = query.split_whitespace().count();
+                let best_match_words = best_match.split_whitespace().count();
+                query_words == best_match_words
+            })
+            .map(|(best_match, _)| best_match)
+    } else {
+        // Pour les phrases longues, Levenshtein est plus efficace
+        texts
+            .iter()
+            .map(|text| (text, levenshtein(query, text)))
+            .filter(|&(test, distance)| {
+                if distance <= lev_threshold {
+                    // println!("distance: {:?} - test: {:?}", distance, test);
+                }
+                distance <= lev_threshold
+            })
+            .min_by_key(|&(_, distance)| distance)
+            .map(|(best_match, _)| best_match)
+    }
 }
