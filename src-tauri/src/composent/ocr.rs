@@ -205,6 +205,7 @@ fn ocr_order_fuzzy_search(ocr_text: &Vec<String>, indices: &Vec<String>) -> Vec<
     let mut ocr_words: Vec<String> = cleaned_text
         .iter()
         .flat_map(|text| text.split_whitespace())
+        .filter(|word| word.len() >= 3)
         .map(|word| word.to_string())
         .collect();
 
