@@ -157,6 +157,8 @@ pub fn call_manual(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
         return Ok(());
     }
 
+    let api_data = response.unwrap();
+
     let history_type_entry: HistoryType =
         if state.bot_data.coords.target == state.bot_data.coords.start {
             HistoryType::Start
@@ -166,16 +168,16 @@ pub fn call_manual(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
 
     let history_entry = HistoryPoint {
         coord: Coord {
-            x: response.pos_x,
-            y: response.pos_y,
+            x: api_data.pos_x,
+            y: api_data.pos_y,
         },
         history_type: history_type_entry,
     };
 
     state.bot_data.history.push(history_entry);
     state.api_status = crate::models::ApiStatus::Active;
-    state.bot_data.coords.target.x = response.pos_x;
-    state.bot_data.coords.target.y = response.pos_y;
+    state.bot_data.coords.target.x = api_data.pos_x;
+    state.bot_data.coords.target.y = api_data.pos_y;
 
     app.emit("state_changed", &*state).unwrap();
 
@@ -184,7 +186,7 @@ pub fn call_manual(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
     window_manager.find_window("Latte").unwrap();
     window_manager.bring_to_front().unwrap();
     window_manager
-        .send_travel_command(response.pos_x, response.pos_y)
+        .send_travel_command(api_data.pos_x, api_data.pos_y)
         .unwrap();
 
     Ok(())
