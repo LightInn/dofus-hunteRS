@@ -20,7 +20,7 @@ use tauri::{AppHandle, State};
 use tauri::{Emitter, Manager};
 
 #[tauri::command]
-pub fn call_python( start : bool ,state: State<'_, AppState>, app: AppHandle) -> Result<()> {
+pub fn call_python(start: bool, state: State<'_, AppState>, app: AppHandle) -> Result<()> {
     let mut state = state.inner.lock().unwrap();
     let config = state.config.clone();
 
@@ -50,8 +50,6 @@ pub fn call_python( start : bool ,state: State<'_, AppState>, app: AppHandle) ->
     println!("Direction: {:?}", direction);
     state.bot_data.current_arrow = direction;
     println!("Direction: {:?}", state.bot_data.current_arrow);
-
-
 
     let x = (if start {
         state.bot_data.coords.start.x
@@ -93,12 +91,11 @@ pub fn call_python( start : bool ,state: State<'_, AppState>, app: AppHandle) ->
 
     let api_data = response.unwrap();
 
-    let history_type_entry: HistoryType =
-        if start {
-            HistoryType::Start
-        } else {
-            HistoryType::Normal
-        };
+    let history_type_entry: HistoryType = if start {
+        HistoryType::Start
+    } else {
+        HistoryType::Normal
+    };
 
     let history_entry = HistoryPoint {
         coord: Coord {
@@ -122,8 +119,6 @@ pub fn call_python( start : bool ,state: State<'_, AppState>, app: AppHandle) ->
     window_manager
         .send_travel_command(api_data.pos_x, api_data.pos_y)
         .unwrap();
-
-
 
     Ok(())
 }
@@ -150,13 +145,17 @@ pub fn call_manual(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
         x, y, direction, hint
     );
 
-    let response = find_next_location(config.api, x, y, direction, &hint)
-        .map_err(|e| {
-            state.api_status = crate::models::ApiStatus::Error;
-            app.emit("state_changed", &*state).unwrap();
-            e
-        })?
-        .unwrap();
+    let response = find_next_location(config.api, x, y, direction, &hint).map_err(|e| {
+        state.api_status = crate::models::ApiStatus::Error;
+        app.emit("state_changed", &*state).unwrap();
+        e
+    })?;
+
+    if response.is_none() {
+        state.api_status = crate::models::ApiStatus::Error;
+        app.emit("state_changed", &*state).unwrap();
+        return Ok(());
+    }
 
     let history_type_entry: HistoryType =
         if state.bot_data.coords.target == state.bot_data.coords.start {
@@ -188,9 +187,5 @@ pub fn call_manual(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
         .send_travel_command(response.pos_x, response.pos_y)
         .unwrap();
 
-
-
     Ok(())
 }
-
-

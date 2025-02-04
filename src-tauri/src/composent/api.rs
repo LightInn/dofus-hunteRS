@@ -66,6 +66,9 @@ struct ApiHintData {
     name_en: String,
 }
 
+
+
+
 pub fn get_hints_from_api(config: ApiConfig) -> Result<Vec<String>, ApiError> {
     let url = format!("{}/api/hints", config.url);
     let headers = get_headers(config)?;
