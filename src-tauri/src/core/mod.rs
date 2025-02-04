@@ -54,14 +54,14 @@ pub fn call_python(state: State<'_, AppState>, app: AppHandle) -> Result<()> {
     let is_start = state.bot_data.coords.target == state.bot_data.coords.start;
 
     let x = (if is_start {
-        state.bot_data.coords.current.x
-    } else {
         state.bot_data.coords.start.x
+    } else {
+        state.bot_data.coords.current.x
     }) as i32;
     let y = (if is_start {
-        state.bot_data.coords.current.y
-    } else {
         state.bot_data.coords.start.y
+    } else {
+        state.bot_data.coords.current.y
     }) as i32;
 
     let direction = match state.bot_data.current_arrow {
