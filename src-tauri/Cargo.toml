@@ -38,9 +38,6 @@ anyhow = "1.0.93"
 enigo = "0.3.0"
 ocrs = "0.9.0"
 rten = { version = "0.13.1" }
-fuzzy-matcher = "0.3.7"
-strsim = "0.11.1"
-
 
 [profile.dev.package.ocrs]
 opt-level = 3
