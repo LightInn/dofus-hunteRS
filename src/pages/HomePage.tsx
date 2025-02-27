@@ -7,13 +7,14 @@ import {Link} from "react-router-dom";
 import ArrowSelector from "../components/arrow-selector.tsx";
 import useBotState from "../store/BotState.tsx";
 import {invoke} from "@tauri-apps/api/core";
+import {HistoryPoint} from "../models/models.tsx";
 
 export default function HomePage() {
     const state = useBotState((state) => state);
 
     const [isRunning, setIsRunning] = useState(false);
     const [hint, setHint] = useState("");
-    const [points, setPoints] = useState([
+    const [points, setPoints] = useState<HistoryPoint[]>([
         {coord: {x: 0, y: 0}, historyType: "normal"}
     ]);
 
@@ -132,9 +133,10 @@ export default function HomePage() {
                 </div>
 
                 <HistoryList
+
                     points={points}
                     onSelect={(point) => console.log("Selected point:", point)}
-                    onDelete={(id) => setPoints(points.filter((p) => p.id !== id))}
+                    onDelete={()=>{}}
                 />
             </main>
         </div>

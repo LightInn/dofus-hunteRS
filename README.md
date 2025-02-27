@@ -1,102 +1,129 @@
-# Tauri App Readme
+# DOFUS-hunteRS  
+[![WIP](https://img.shields.io/badge/Status-WIP-red)](#)  
+[![Rust Powered](https://img.shields.io/badge/Powered_by-Rust-000000?logo=rust)](https://www.rust-lang.org/)  
+[![Tauri Build](https://img.shields.io/badge/Tauri-Blazing%20Fast-FFC131?logo=tauri)](https://tauri.app/)  
+[![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen)](#)  
+[![MIT License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)  
 
-This document provides a comprehensive guide to setting up and running your Rust Tauri application on Windows. It includes installation instructions for all necessary dependencies and steps to start the development server.
+```
+   ____        __              __     __
+/ __ \____  / /_____  ____  / /_   / /____  _____
+/ / / / __ \/ __/ __ \/ __ \/ __/  / __/ _ \/ ___/
+/ /_/ / /_/ / /_/ /_/ / / / / /_   / /_/  __/ /    
+\____/ .___/\__/\____/_/ /_/\__/   \__/\___/_/     
+/_/   hunteRS ~ Tauri Desktop App ~
+```
 
-## Prerequisites
+> **Dofus overlay tool** (inspired by Ganymède) – Not a bot, just an assistive tool for treasure hunts in Dofus.  
+> ⚠️ *Currently English-only. Private API. Still a work in progress!*
 
-Before you begin, ensure your system meets the following requirements:
+---
 
-- **Operating System**: Windows
-- **Development Tools**: Microsoft C++ Build Tools, Microsoft Edge WebView2
-- **Programming Languages**: Rust, Node.js (optional for JavaScript frontend)
+## 📌 Overview
 
-## Installation Instructions
+- **Demo VIDEO**:
+- [![Dofus HunteRS DEMO](https://img.youtube.com/vi/yhh_wEjSPN8/0.jpg)](https://www.youtube.com/watch?v=yhh_wEjSPN8)
 
-### 1. Microsoft C++ Build Tools
+- **Screenshot**: 
+- 
+  ![Screenshot](./public/screenshot.png)
 
-Tauri requires the Microsoft C++ Build Tools for development. Follow these steps to install:
+---
 
-1. **Download** the Microsoft C++ Build Tools installer from the official Microsoft website.
-2. **Run** the installer and select the “Desktop development with C++” option during installation.
+## 🚀 Features
 
-### 2. Rust Installation
+- **Dofus overlay**: Screen analysis with OCR and OpenCV.  
+- **Clue management**: Fetches hints from your custom API.  
+- **Built-in settings manager**: Configure directly from the app.  
+- **Rust + Tauri**: Fast, lightweight, and smooth desktop experience.  
+- **Inspired by Ganymède**: But with extra Rust magic!  
 
-Tauri is built with Rust. Install Rust by following these steps:
+---
 
-1. Visit the official Rust installation page at [rust-lang.org/tools/install](https://www.rust-lang.org/tools/install).
-2. Alternatively, use `winget` to install `rustup` via PowerShell:
-   ```powershell
-   winget install --id Rustlang.Rustup
-   ```
-3. Ensure the MSVC toolchain is set as the default:
-    - During installation, select the MSVC Rust toolchain as the default host triple (e.g., `x86_64-pc-windows-msvc`).
-    - If Rust is already installed, set the MSVC toolchain as default by running:
-      ```powershell
-      rustup default stable-msvc
-      ```
+## ⚡ Installation & Requirements
 
-### 3. Node.js Installation (Optional)
+### 1. Microsoft C++ & WebView2
+- Install **Microsoft C++ Build Tools** and **Microsoft Edge WebView2** (required for Tauri).
 
-If you plan to use a JavaScript frontend framework, install Node.js:
+### 2. Rust & Tauri
+- Install [Rust](https://www.rust-lang.org/tools/install) and set the MSVC toolchain as default.
+- (Optional) Install [Node.js](https://nodejs.org/) if you plan to tweak the frontend.
+- Ensure Tauri is installable via `cargo`.
 
-1. **Download** the Long Term Support (LTS) version from the [Node.js website](https://nodejs.org/).
-2. **Install** Node.js and verify the installation:
-   ```powershell
-   node -v
-   npm -v
-   ```
-3. **Restart** your Terminal or computer to apply changes.
-4. Optionally, enable other package managers like `pnpm` or `yarn`:
-   ```powershell
-   corepack enable
-   ```
-
-### 4. OpenCV Installation (Optional)
-
-For applications requiring OpenCV, install it via Chocolatey or vcpkg:
-
-- **Chocolatey**:
+### 3. OpenCV (Required for OCR)
+- Install via **Chocolatey**:  
   ```powershell
   choco install llvm opencv
   ```
-  Set the following environment variables:
-    - `OPENCV_LINK_LIBS`
-    - `OPENCV_LINK_PATHS`
-    - `OPENCV_INCLUDE_PATHS`
-
-- **vcpkg**:
+- Or via **vcpkg**:
   ```powershell
   vcpkg install llvm opencv4[contrib,nonfree]
   ```
-  Set the environment variable `VCPKGRS_DYNAMIC` to `"1"` unless targeting a static build.
+- Set environment variables (`OPENCV_LINK_PATHS`, etc.).
 
-## Starting the Development Server
+### 4. Clang/LLVM
+- Download the latest version from [LLVM releases](https://github.com/llvm/llvm-project/releases).
+- Add paths to environment variables (`LLVM_CONFIG_PATH`, `LIBCLANG_PATH`).
 
-Once all dependencies are installed, follow these steps to start your Tauri app:
+---
 
-1. **Navigate** to the project directory
-2. **Install** dependencies using your preferred package manager:
-   ```powershell
+## 🛠 Running the App (Dev)
+
+1. **Clone the repo**:
+   ```bash
+   git clone https://github.com/LightInn/dofus-hunteRS.git
+   cd dofus-hunters
+   ```
+2. **Install dependencies**:
+   ```bash
    pnpm install
    ```
-3. **Start** the Tauri development server:
-   ```powershell
+   (or `npm install`, `yarn install` – whichever you prefer)
+3. **Start in dev mode**:
+   ```bash
    pnpm tauri dev
    ```
-4. A new window will open displaying your running Tauri application.
+4. **Configure settings directly in the app** (Settings tab).
 
-## Conclusion
+---
 
-Congratulations! You have successfully set up and launched your Tauri application on Windows. For further customization and development, refer to the [Tauri documentation](https://tauri.app/).
+## ⚠️ Important Notices
 
-Happy coding! 🚀
+> **🔴 OCR cannot be disabled**  
+> The app relies on OpenCV-based OCR, and there are currently no native Rust bindings available to replace it.
 
+> **🔴 English-only for now**  
+> The tool only works with the **English** version of Dofus.
 
-install last version of clang + llvm 
-https://github.com/llvm/llvm-project/releases/tag/llvmorg-19.1.7
+> **🔴 This is NOT a bot**  
+> The app does not automate gameplay. It simply provides an assistive overlay for easier treasure hunts.
 
+> **🔴 Work in Progress**  
+> Expect bugs, incomplete features, and frequent updates.
 
-add them to path 
+---
 
-LLVM_CONFIG_PATH
-LIBCLANG_PATH
+## 🤝 Contributing
+
+Pull requests are more than welcome! Whether it's improving the UI, optimizing the OCR, or porting the project to other OS, your contributions can make a difference.  
+Open an **issue** or a **pull request** and let’s discuss!
+
+---
+
+## 📜 License
+
+This project is open-source under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🎉 Credits
+
+- **Tauri** for making desktop dev enjoyable.
+- **Rust** for its unmatched speed.
+- **Dofus community** for the inspiration.
+- **You**, for testing and contributing!
+
+---
+
+*Happy hunting! (And remember, we're not bots.)*
+```
